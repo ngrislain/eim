@@ -61,7 +61,7 @@ int main() {
 	plt::legend();
 	plt::show();
 	// Save the image (file format is determined by the extension)
-	plt::save("./basic.png");
+	//plt::save("./basic.png");
 
 	Matching m = Matching(10, 10);
 	m.split_matching(0.5);
