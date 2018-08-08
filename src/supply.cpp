@@ -1,13 +1,13 @@
 /*
- * Demand.cpp
+ * Supply.cpp
  *
  *  Created on: 7 août 2018
  *      Author: ngrislain16
  */
 
-#include "Demand.h"
+#include "supply.h"
 
-Demand::Demand() {
+Supply::Supply() {
 	// TODO Auto-generated constructor stub
 
 }

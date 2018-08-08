@@ -5,10 +5,10 @@
  *      Author: ngrislain16
  */
 
-#include "Entity.h"
 #include <limits>
 #include <functional>
 #include <random>
+#include "entity.h"
 
 using namespace std;
 

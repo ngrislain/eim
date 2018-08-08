@@ -17,9 +17,11 @@ class Matching {
 private:
 	int supply_size;
 	int demand_size;
-	boost::multi_array<bool, 2> matrix;
+	//boost::multi_array<bool, 2> matrix;
 	boost::mt19937 random_number_generator;
 public:
+	boost::multi_array<bool, 2> matrix;
+
 	Matching(int supply_size, int demand_size);
 	Matching& full_matching();
 	Matching& split_matching(float share);

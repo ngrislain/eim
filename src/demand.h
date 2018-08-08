@@ -8,7 +8,7 @@
 #ifndef DEMAND_H_
 #define DEMAND_H_
 
-#include "Entity.h"
+#include "entity.h"
 
 class Demand : public Entity {
 public:
