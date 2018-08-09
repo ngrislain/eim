@@ -47,13 +47,17 @@ Matching& Matching::bernoulli_matching(float p) {
 	return *this;
 }
 
+boost::multi_array<bool, 2> Matching::data() {
+	return matrix;
+}
+
 ostream& operator<<(ostream& os, const Matching& matching){
 	os << "[[" << matching.matrix[0][0];
 	for (multi_array<bool, 2>::index j=1; j<matching.demand_size; j++) {
 		os << ", " << matching.matrix[0][j];
 	}
 	os << "]";
-	for (multi_array<bool, 2>::index i=0; i<matching.supply_size; i++) {
+	for (multi_array<bool, 2>::index i=1; i<matching.supply_size; i++) {
 		os << endl << " [" << matching.matrix[i][0];
 		for (multi_array<bool, 2>::index j=1; j<matching.demand_size; j++) {
 			os << ", " << matching.matrix[i][j];

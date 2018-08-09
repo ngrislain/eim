@@ -16,33 +16,34 @@
 
 #include "matching.h"
 #include "supply.h"
+#include "utils/for.h"
 #include "utils/vector.h"
 #include "utils/plot.h"
 
 using namespace std;
-using namespace boost;
+namespace b = boost;
 
 int main() {
 	Plot p;
 
-	Matching m = Matching(10, 10);
+	Matching m = Matching(100, 100);
 	m.split_matching(0.5);
 	m.bernoulli_matching(0.5);
 
-	cout << m << endl;
+	//cout << m << endl;
 
-	// Create a 3D array that is 3 x 4 x 2
-	multi_array<double,2> A(boost::extents[3][4]);
+//	Vector<std::array<int, 2>, double, boost::multi_array<bool, 2>> V(m.data());
+//	V.for_each([](array<int,2> k, double v){cout << v << ", ";});
 
-	// Assign values to the elements
-	int values = 0;
-	for (multi_array<double,2>::index i = 0; i != 3; ++i)
-		for (multi_array<double,2>::index j = 0; j != 4; ++j)
-			A[i][j] = values++;
+//	For<b::multi_array<bool, 2>, array<int,2>, double>::each(m.data(), [](array<int,2> k, double v){cout << k[0] << ", " << k[1] << " : " << v << endl;});
+//
+//	cout << For<b::multi_array<bool, 2>, array<int,2>, double>::one(m.data(), array<int,2>{1,1}) << endl;
+//
+//	For<array<double, 5>, int, double>::each(array<double, 5>{1,2,3,4,5}, [](int k, double v){cout << k << " : " << v << endl;});
+//
+//	cout << For<array<double, 5>, int, double>::one(array<double, 5>{1,2,3,4,5}, 1) << endl;
 
-	Vector<std::array<int,2>,double,multi_array<double,2>> V(A);
-
-	//p.image(m.matrix);
+	p.image(m.data());
 
 	return 0;
 }
