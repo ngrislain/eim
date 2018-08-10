@@ -10,8 +10,8 @@
 
 #include <iostream>
 #include <string>
-#include "boost/multi_array.hpp"
-#include "boost/random.hpp"
+#include <boost/multi_array.hpp>
+#include <boost/random.hpp>
 
 class Matching {
 private:
