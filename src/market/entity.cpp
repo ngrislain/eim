@@ -7,27 +7,34 @@
 
 #include <functional>
 #include <random>
+
 #include "entity.h"
 
 using namespace std;
 
-DeterministicGenerator::DeterministicGenerator(const DeterministicGenerator& dg) : seed(dg.seed) {}
-DeterministicGenerator::DeterministicGenerator(unsigned long s) : seed(s) {}
-
-unsigned long DeterministicGenerator::operator()() {
-	return seed;
-}
+// Define Entity
 
 // Initialize static members
 mt19937_64 Entity::gen;
 uniform_int_distribution<unsigned long> Entity::distrib;
 
-Entity::Entity() : id(distrib(Entity::gen)) {}
+Entity::Entity() : id_(distrib(gen)) {}
 
-DeterministicGenerator Entity::generator(int index) {
-	return DeterministicGenerator(hash<unsigned long>{}(id+index));
+Entity& Entity::init() {
+	id_ = distrib(gen);
+	return *this;
 }
 
-DeterministicGenerator Entity::generator(string index) {
-	return DeterministicGenerator(hash<unsigned long>{}(id+hash<string>{}(index)));
+unsigned long Entity::id() const {
+	return id_;
+}
+
+DeterministicGenerator Entity::d_gen(int index) const {
+	gen.seed(id()+index);
+	return DeterministicGenerator(gen());
+}
+
+DeterministicGenerator Entity::d_gen(string index) const {
+	gen.seed(id()+hash<string>{}(index));
+	return DeterministicGenerator(gen());
 }

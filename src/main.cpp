@@ -14,6 +14,7 @@
 #include <boost/multi_array.hpp>
 #include <range/v3/all.hpp>
 
+#include "tests.h"
 #include "market/matching.h"
 #include "market/supply.h"
 #include "market/demand.h"
@@ -24,26 +25,33 @@ namespace b = boost;
 namespace r = ranges;
 
 int main() {
+	Tests tests;
+
 	Plot p;
 
-	Matching m = Matching(100, 100);
-	m.split_matching(0.5);
-	m.bernoulli_matching(0.5);
+	Matching m = Matching(10, 10).bernoulli(0.5);
+	cout << m << endl;
 
-	//cout << m << endl;
-
-	list<double> unif;
-	for (int i=0; i<100; i++) {
-		Demand d;
-		unif.push_back(d.generator(0)());
-		time_t enter = chrono::system_clock::to_time_t(d.enter_date);
-		time_t travel = chrono::system_clock::to_time_t(d.travel_date);
-		cout << d << endl;
+	list<double> x, y;
+	Demand d;
+	for (int i=0; i<10000; i++) {
+		d.init();
+		time_t enter = chrono::system_clock::to_time_t(d.enter_date());
+		time_t travel = chrono::system_clock::to_time_t(d.travel_date());
+		x.push_back(enter);
+		y.push_back(d.d_gen("y")());
 	}
+	//    p.plot(x, y, ", 'ro', alpha=0.5");
 
-//	p.plot(array<double,7>{1,2,3,6,89,10,100});
-	p.plot(unif, ", 'ro', alpha=0.2");
-//	p.image(m.data());
+	array<Supply,100> ss;
+	array<Demand,100> ds;
+	b::multi_array<bool, 2> a(b::extents[100][100]);
+	for (int i=0; i<ss.size(); i++)
+		for (int j=0; j<ds.size(); j++) {
+			a[i][j] = m(ss[i], ds[j]);
+		}
+
+	//p.image(a);
 
 	return 0;
 }

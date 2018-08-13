@@ -13,54 +13,56 @@
 using namespace std;
 using namespace boost;
 
-Matching::Matching(int supply_size, int demand_size) : supply_size(supply_size),
-		demand_size(demand_size),
-		matrix(extents[supply_size][demand_size]) {
-	random_number_generator.seed(time(0));
-}
+mt19937_64 Matching::gen;
 
-Matching& Matching::full_matching() {
-	for (multi_array<bool, 2>::index i=0; i<supply_size; i++) {
-		for (multi_array<bool, 2>::index j=0; j<demand_size; j++) {
-			matrix[i][j] = 1;
+Matching::Matching(int supply_size, int demand_size) : data_(boost::extents[supply_size][demand_size]) {};
+
+Matching& Matching::full() {
+	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
+		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
+			data_[i][j] = 1;
 		}
 	}
 	return *this;
-}
+};
 
-Matching& Matching::split_matching(float share) {
-	for (multi_array<bool, 2>::index i=0; i<supply_size; i++) {
-		for (multi_array<bool, 2>::index j=0; j<demand_size; j++) {
-			matrix[i][j] = ((i < share*supply_size) && (j < share*demand_size)) || ((i >= share*supply_size) && (j >= share*demand_size));
+Matching& Matching::split(double share) {
+	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
+		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
+			data_[i][j] = ((i < share*data().shape()[0]) && (j < share*data().shape()[1])) || ((i >= share*data().shape()[0]) && (j >= share*data().shape()[1]));
 		}
 	}
 	return *this;
-}
+};
 
-Matching& Matching::bernoulli_matching(float p) {
-	bernoulli_distribution<float> bernoulli = bernoulli_distribution<float>(p);
-	for (multi_array<bool, 2>::index i=0; i<supply_size; i++) {
-		for (multi_array<bool, 2>::index j=0; j<demand_size; j++) {
-			matrix[i][j] = bernoulli(random_number_generator);
+Matching& Matching::bernoulli(double p) {
+	std::bernoulli_distribution distrib(p);
+	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
+		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
+			data_[i][j] = distrib(Matching::gen);
 		}
 	}
 	return *this;
+};
+
+Matching::DataType Matching::data() const {
+	return data_;
 }
 
-boost::multi_array<bool, 2> Matching::data() {
-	return matrix;
+bool Matching::operator()(const Supply &s, const Demand &d) const {
+	return data()[s.id() % data().shape()[0]][d.id() % data().shape()[1]];
 }
 
-ostream& operator<<(ostream& os, const Matching& matching){
-	os << "[[" << matching.matrix[0][0];
-	for (multi_array<bool, 2>::index j=1; j<matching.demand_size; j++) {
-		os << ", " << matching.matrix[0][j];
+ostream& operator<<(ostream& os, const Matching& m){
+	os << "[[" << m.data_[0][0];
+	for (multi_array<bool, 2>::index j=1; j<m.data().shape()[1]; j++) {
+		os << ", " << m.data()[0][j];
 	}
 	os << "]";
-	for (multi_array<bool, 2>::index i=1; i<matching.supply_size; i++) {
-		os << endl << " [" << matching.matrix[i][0];
-		for (multi_array<bool, 2>::index j=1; j<matching.demand_size; j++) {
-			os << ", " << matching.matrix[i][j];
+	for (multi_array<bool, 2>::index i=1; i<m.data().shape()[0]; i++) {
+		os << endl << " [" << m.data_[i][0];
+		for (multi_array<bool, 2>::index j=1; j<m.data().shape()[1]; j++) {
+			os << ", " << m.data()[i][j];
 		}
 		os << "]";
 	}
