@@ -1,34 +1,24 @@
 /*
  * omega.cpp
  *
- *  Created on: 13 août 2018
+ *  Created on: 14 août 2018
  *      Author: ngrislain16
  */
 
 #include "omega.h"
 
-#include <iostream>
+Omega::Omega() : seed_generator_(), value_generator_(seed_generator_()) {}
 
-using namespace std;
-
-std::mt19937_64 Omega::generator{std::random_device{}()};
-Omega Omega::instance{};
-
-Omega::Omega() : state_(Omega::generator()), generator_(state_) {}
-
-Omega::Generator<Omega> Omega::operator[](const unsigned long s) {
-	return Omega::Generator<Omega>(*this, s);
-}
-
-Omega::Generator<Omega> Omega::operator[](const std::string s) {
-	return Omega::Generator<Omega>(*this, s);
-}
-
-unsigned long Omega::operator()() const {
-	return state_;
-}
+Omega::Omega(unsigned long s) : seed_generator_(s), value_generator_(seed_generator_()) {}
 
 Omega& Omega::operator++() {
-	state_ = generator_();
+	value_generator_.seed(seed_generator_());
+	for (Random *value : values_) {
+		value->random(*this);
+	}
 	return *this;
+}
+
+std::ostream& operator<<(std::ostream& os, const Omega& o) {
+	return os << "Omega(" << o.values_.size() << " managed random variables)";
 }

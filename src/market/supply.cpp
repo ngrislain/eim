@@ -15,32 +15,24 @@ using namespace std;
 using namespace std::chrono;
 
 const double Supply::expected_entry_days = 10;
-std::exponential_distribution<double> Supply::entry_distrib{1/Supply::expected_entry_days};
 
-Supply::Supply() : entry_gen(d_gen(0)) {
-	travel_date_ = system_clock::now();
-	enter_date_ = system_clock::now()-hours(24*(int)entry_distrib(entry_gen));
-}
+Supply::Supply() : gen(0), id(gen()) {}
 
-Supply& Supply::init() {
-	Entity::init();
-	entry_gen = d_gen(0);
-	travel_date_ = system_clock::now();
-	enter_date_ = system_clock::now()-hours(24*(int)entry_distrib(entry_gen));
-	return *this;
+int Supply::entry() const {
+	return 0;
 }
 
 std::chrono::system_clock::time_point Supply::travel_date() const {
-	return travel_date_;
+	return system_clock::now();
 }
 
 std::chrono::system_clock::time_point Supply::enter_date() const {
-	return enter_date_;
+	return system_clock::now()-hours(24*entry());
 }
 
 ostream& operator<<(ostream& os, const Supply& s){
-	time_t travel = system_clock::to_time_t(s.travel_date_);
-	time_t enter = system_clock::to_time_t(s.enter_date_);
+	time_t travel = system_clock::to_time_t(s.travel_date());
+	time_t enter = system_clock::to_time_t(s.enter_date());
 	os << "Supply(travel=" << put_time(localtime(&travel), "%F") << ", enter=" << put_time(localtime(&enter), "%F") << ")";
 	return os;
 }

@@ -8,21 +8,21 @@
 #ifndef MATCHING_H_
 #define MATCHING_H_
 
-#include "supply.h"
-#include "demand.h"
-
 #include <iostream>
 #include <string>
-#include <random>
 #include <boost/multi_array.hpp>
+#include "supply.h"
+#include "demand.h"
+#include "../utils/omega.h"
 
 class Matching {
 private:
-	static std::mt19937_64 gen;
 	typedef boost::multi_array<bool, 2> DataType;
 	typedef DataType::index IndexType;
 	DataType data_;
+	std::mt19937_64 gen;
 public:
+	unsigned long id;
 	Matching(int supply_size, int demand_size);
 	Matching& full();
 	Matching& split(double share);

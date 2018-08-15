@@ -6,16 +6,13 @@
  */
 
 #include <sstream>
-#include <time.h>
 
 #include "matching.h"
 
 using namespace std;
 using namespace boost;
 
-mt19937_64 Matching::gen;
-
-Matching::Matching(int supply_size, int demand_size) : data_(boost::extents[supply_size][demand_size]) {};
+Matching::Matching(int supply_size, int demand_size) : gen(0), id(gen()), data_(boost::extents[supply_size][demand_size]) {};
 
 Matching& Matching::full() {
 	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
@@ -39,7 +36,7 @@ Matching& Matching::bernoulli(double p) {
 	std::bernoulli_distribution distrib(p);
 	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
 		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
-			data_[i][j] = distrib(Matching::gen);
+			data_[i][j] = distrib(gen);
 		}
 	}
 	return *this;
@@ -50,7 +47,7 @@ Matching::DataType Matching::data() const {
 }
 
 bool Matching::operator()(const Supply &s, const Demand &d) const {
-	return data()[s.id() % data().shape()[0]][d.id() % data().shape()[1]];
+	return data()[s.id % data().shape()[0]][d.id % data().shape()[1]];
 }
 
 ostream& operator<<(ostream& os, const Matching& m){

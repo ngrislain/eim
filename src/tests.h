@@ -11,6 +11,7 @@
 class Tests {
 public:
 	Tests();
+	void omega();
 };
 
 #endif /* TESTS_H_ */

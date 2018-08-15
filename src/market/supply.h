@@ -8,20 +8,20 @@
 #ifndef SUPPLY_H_
 #define SUPPLY_H_
 
-#include "entity.h"
-
+#include <random>
+#include <functional>
 #include <chrono>
 
-class Supply : public Entity {
+#include "../utils/omega.h"
+
+class Supply {
 private:
-	DeterministicGenerator entry_gen;
-	std::chrono::system_clock::time_point travel_date_;
-	std::chrono::system_clock::time_point enter_date_;
+	std::mt19937_64 gen;
 public:
 	static const double expected_entry_days;
-	static std::exponential_distribution<double> entry_distrib;
+	unsigned long id;
 	Supply();
-	Supply& init();
+	int entry() const;
 	std::chrono::system_clock::time_point travel_date() const;
 	std::chrono::system_clock::time_point enter_date() const;
 	friend std::ostream& operator<<(std::ostream& os, const Supply& d);
