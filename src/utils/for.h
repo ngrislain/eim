@@ -40,16 +40,4 @@ struct For<boost::multi_array<T, n>, std::array<int, n>, double> {
 	};
 };
 
-// For simple array
-template<typename T, int n>
-struct For<std::array<T, n>, int, double> {
-	static double one(std::array<T, n> const &d, int const &k) {return d[k];};
-	static void one(std::array<T, n> const &d, int const &k, std::function<void(double)> f) {f(d[k]);};
-	static void each(std::array<T, n> const &d, std::function<void(int, double)> f) {
-		for (int i=0; i<d.size(); i++) {
-			f(i, d[i]);
-		}
-	};
-};
-
 #endif /* UTILS_FOR_H_ */

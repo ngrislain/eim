@@ -17,7 +17,7 @@ class Omega {
 public:
 	class Random;
 	template <typename R> class Var;
-	template <typename R, int n> class VarArray;
+	template <typename R, typename I> class Iter;
 private:
 	static std::uniform_int_distribution<unsigned long> uniform_long;
 	static std::uniform_real_distribution<double> uniform_double;
@@ -29,7 +29,8 @@ public:
 	Omega();
 	Omega(unsigned long s);
 	template <typename R> Var<R> operator()(R &r) {return Var<R>(*this, r);}
-	template <typename R, int n> VarArray<R,n> array(R &r) {return VarArray<R,n>(*this, r);}
+	template <typename R, typename I> Iter<R,I> operator()(R &r, I &i) {return Iter<R,I>(*this, r, i);}
+	template <typename R, typename I> Iter<R,I> operator()(R &r, I &&i) {return Iter<R,I>(*this, r, i);}
 	Omega& operator++();
 	friend std::ostream& operator<<(std::ostream& os, const Omega& o);
 	// Generic Random value definition
@@ -40,7 +41,7 @@ public:
 	public:
 		virtual ~Random() = default;
 	};
-	// Value definition
+	// Var definition
 	template <typename R>
 	class Var : Random {
 	private:
@@ -58,40 +59,52 @@ public:
 		friend class Omega;
 		friend std::ostream& operator<<(std::ostream& os, const Var& v) {return os << v.value_;}
 	};
-	template <typename R, int n>
-	class VarArray : Random {
+	// Iter class
+	template <typename R, typename I>
+	class Iter : Random {
 	private:
 		typedef typename R::result_type T;
-		std::array<T,n> values_;
 		R &random_;
-		VarArray(Omega &o, R &r) : random_(r) {
+		I &iter_;
+		Iter(Omega &o, R &r, I &i) : random_(r), iter_(i) {
+			o.values_.push_back(this);
+			random(o);
+		}
+		Iter(Omega &o, R &r, I &&i) : random_(r), iter_(std::move(i)) {
 			o.values_.push_back(this);
 			random(o);
 		}
 		virtual void random(Omega &o) {
-			for (int i=0; i<n; i++) {
-				values_[i] = random_(o.value_generator_);
+			auto val = iter_.begin();
+			auto end = iter_.end();
+			while(val != end) {
+				*val = random_(o.value_generator_);
+				++val;
 			}
 		}
 	public:
-		virtual ~VarArray() = default;
-		inline std::array<T,n> operator()() const {return values_;}
-		friend class Omega;
-		friend std::ostream& operator<<(std::ostream& os, const VarArray& va) {
-			os << "[" << va.values_[0];
-			for (int i=1; i<n; i++) {
-				os << ", " << va.values_[i];
-			}
-			os << "]";
-			return os;
+	virtual ~Iter() = default;
+	inline I operator()() const {return iter_;}
+	friend class Omega;
+	friend std::ostream& operator<<(std::ostream& os, const Iter& i) {
+		auto val = i.iter_.begin();
+		auto end = i.iter_.end();
+		os << "[" << *val;
+		++val;
+		while(val != end) {
+			os << ", " << *val;
+			++val;
 		}
+		os << "]";
+		return os;
+	}
 	};
-	Var<std::uniform_int_distribution<unsigned long>> operator()() {return operator()(uniform_long);}
-	Var<std::uniform_real_distribution<double>> unif() {return operator()(uniform_double);}
+	Var<std::uniform_int_distribution<unsigned long>> integer() {return operator()(uniform_long);}
+	Var<std::uniform_real_distribution<double>> real() {return operator()(uniform_double);}
 	Var<std::normal_distribution<double>> norm() {return operator()(normal);}
-	template <int n> VarArray<std::uniform_int_distribution<unsigned long>,n> array() {return VarArray<std::uniform_int_distribution<unsigned long>,n>(*this, uniform_long);}
-	template <int n> VarArray<std::uniform_real_distribution<double>,n> unif_array() {return VarArray<std::uniform_real_distribution<double>,n>(*this, uniform_double);}
-	template <int n> VarArray<std::normal_distribution<double>,n> norm_array() {return VarArray<std::normal_distribution<double>,n>(*this, normal);}
+	template <typename I> Iter<std::uniform_int_distribution<unsigned long>,I> integer(I &&i) {return operator()(uniform_long, i);}
+	template <typename I> Iter<std::uniform_real_distribution<double>,I> real(I &&i) {return operator()(uniform_double, i);}
+	template <typename I> Iter<std::normal_distribution<double>,I> norm(I &&i) {return operator()(normal, i);}
 };
 
 #endif /* UTILS_OMEGA_H_ */
