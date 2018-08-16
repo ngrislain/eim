@@ -19,7 +19,6 @@ using namespace std;
 
 Tests::Tests() {
 	cout << "Running tests" << endl;
-	omega();
 	demand();
 	omega();
 }
@@ -29,15 +28,13 @@ void Tests::demand() {
 	Plot p;
 	Omega o;
 	vector<double> x, y;
-	Demand d(o);
+	auto d = o.ext(Demand());
 	for (int i = 0; i < 10000; i++) {
-		time_t enter = chrono::system_clock::to_time_t(d.enter_date());
-		time_t travel = chrono::system_clock::to_time_t(d.travel_date());
+		time_t enter = chrono::system_clock::to_time_t(d().enter_date());
+		time_t travel = chrono::system_clock::to_time_t(d().travel_date());
 		x.push_back(enter);
-		cout << "DEBUG Tests::demand pre ++o" << endl;
 		++o;
-		cout << "DEBUG Tests::demand post ++o" << endl;
-		y.push_back(d.id());
+		y.push_back(d().id());
 		//cout << d << endl;
 	}
 	p.plot(x, y, ", 'ro', alpha=0.5");
@@ -48,8 +45,8 @@ void Tests::omega() {
 	Omega o(20);
 	std::normal_distribution<double> u{2,1};
 	cout << "o = " << o << endl;
-	auto a = o(u);
-	a = o(std::normal_distribution<double>{3,1});
+	//auto a = o(u);
+	auto a = o(std::normal_distribution<double>{3,1});
 	auto b = o.integer();
 	auto c = o.real();
 	auto d = o.norm();

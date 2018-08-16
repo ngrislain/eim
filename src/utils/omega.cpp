@@ -13,14 +13,12 @@ Omega::Omega(unsigned long s) : seed_generator_(s), value_generator_(seed_genera
 
 Omega& Omega::operator++() {
 	value_generator_.seed(seed_generator_());
-	for (Random *rv : random_variables_) {
-		std::cout << "DEBUG Omega::operator++" << std::endl;
-		rv->random(*this);
-		std::cout << "DEBUG Omega::operator++" << std::endl;
+	for (Random *r : randoms_) {
+		r->random();
 	}
 	return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Omega& o) {
-	return os << "Omega(" << o.random_variables_.size() << " managed random variables)";
+	return os << "Omega(" << o.randoms_.size() << " managed random variables)";
 }

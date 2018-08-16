@@ -8,7 +8,7 @@
 #ifndef UTILS_OMEGA_H_
 #define UTILS_OMEGA_H_
 
-#include <vector>
+#include <set>
 #include <random>
 #include <iostream>
 
@@ -21,22 +21,24 @@ public:
 private:
 	std::mt19937_64 seed_generator_;
 	std::mt19937_64 value_generator_;
-	std::vector<Random> random_variables_;
+	std::set<Random*> randoms_;
 public:
 	Omega();
 	Omega(unsigned long s);
 	template <typename R> Var<R> operator()(R r) {return Var<R>(*this, r);}
 	template <typename R, typename I> Iter<R,I> operator()(R r, I i) {return Iter<R,I>(*this, r, i);}
-	template <typename E> Ext<E> ext(E &e) {return Ext<E>(*this, e);}
+	template <typename E> Ext<E> ext(E e) {return Ext<E>(*this, e);}
 	Omega& operator++();
 	friend std::ostream& operator<<(std::ostream& os, const Omega& o);
 
-	// Generic Random value definition
+	// Generic Random variable definition
 	class Random {
-	private:
-		virtual void random(Omega &o) = 0;
+	protected:
+		Omega &omega_;
+		Random(Omega &o) : omega_(o) {omega_.randoms_.insert(this);}
+		~Random() {omega_.randoms_.erase(this);}
+		virtual void random() = 0;
 	public:
-		virtual ~Random() = default;
 		friend Omega& Omega::operator++();
 	};
 
@@ -47,13 +49,9 @@ public:
 		typedef typename R::result_type T;
 		R random_;
 		T value_;
-		virtual void random(Omega &o) {value_ = random_(o.value_generator_);}
+		virtual void random() {value_ = random_(omega_.value_generator_);}
 	public:
-		Var(Omega &o, R r) : random_(r) {
-			o.random_variables_.push_back(this);
-			random(o);
-		}
-		virtual ~Var() = default;
+		Var(Omega &o, R r) : Random(o), random_(r) {random();}
 		inline T operator()() const {return value_;}
 		friend std::ostream& operator<<(std::ostream& os, const Var& v) {return os << v.value_;}
 	};
@@ -65,20 +63,16 @@ public:
 		typedef typename R::result_type T;
 		R random_;
 		I iter_;
-		virtual void random(Omega &o) {
+		virtual void random() {
 			auto val = iter_.begin();
 			auto end = iter_.end();
 			while(val != end) {
-				*val = random_(o.value_generator_);
+				*val = random_(omega_.value_generator_);
 				++val;
 			}
 		}
 	public:
-		Iter(Omega &o, R r, I i) : random_(r), iter_(i) {
-			o.random_variables_.push_back(this);
-			random(o);
-		}
-		virtual ~Iter() = default;
+		Iter(Omega &o, R r, I i) : Random(o), random_(r), iter_(i) {random();}
 		inline I operator()() const {return iter_;}
 		friend std::ostream& operator<<(std::ostream& os, const Iter& i) {
 			auto val = i.iter_.begin();
@@ -93,22 +87,16 @@ public:
 			return os;
 		}
 	};
+
 	// Ext definition
 	template <typename E>
 	class Ext : Random {
 	private:
-		E &ext_;
-		virtual void random(Omega &o) {
-			std::cout << "DEBUG Ext::random" << std::endl;
-			ext_.random(o.value_generator_);
-			std::cout << "DEBUG Ext::random" << std::endl;
-		}
+		E ext_;
+		virtual void random() {ext_.random(omega_.value_generator_);}
 	public:
-		Ext(Omega &o, E &e) : ext_(e) {
-			o.random_variables_.push_back(this);
-			random(o);
-		}
-		virtual ~Ext() = default;
+		Ext(Omega &o, E &e) : Random(o), ext_(e) {random();}
+		inline E operator()() const {return ext_;}
 	};
 	Var<std::uniform_int_distribution<unsigned long>> integer() {return operator()(std::uniform_int_distribution<unsigned long>());}
 	Var<std::uniform_real_distribution<double>> real() {return operator()(std::uniform_real_distribution<double>());}
