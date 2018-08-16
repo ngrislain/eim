@@ -15,13 +15,11 @@
 #include "../utils/omega.h"
 
 class Supply {
-private:
-	std::mt19937_64 gen;
 public:
 	static const double expected_entry_days;
-	unsigned long id;
-	Supply();
-	int entry() const;
+	Omega::Var<std::uniform_int_distribution<unsigned long>> id;
+	Omega::Var<std::geometric_distribution<int>> entry;
+	Supply(Omega &o);
 	std::chrono::system_clock::time_point travel_date() const;
 	std::chrono::system_clock::time_point enter_date() const;
 	friend std::ostream& operator<<(std::ostream& os, const Supply& d);

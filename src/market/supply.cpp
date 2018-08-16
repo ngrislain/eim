@@ -16,11 +16,7 @@ using namespace std::chrono;
 
 const double Supply::expected_entry_days = 10;
 
-Supply::Supply() : gen(0), id(gen()) {}
-
-int Supply::entry() const {
-	return 0;
-}
+Supply::Supply(Omega &o) : id(o, uniform_int_distribution<unsigned long>()), entry(o, geometric_distribution<>(1/expected_entry_days)) {}
 
 std::chrono::system_clock::time_point Supply::travel_date() const {
 	return system_clock::now();

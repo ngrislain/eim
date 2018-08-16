@@ -11,6 +11,8 @@
 class Tests {
 public:
 	Tests();
+	void matching();
+	void demand();
 	void omega();
 };
 

@@ -31,7 +31,7 @@ Value::DataType Value::data() const {
 }
 
 double Value::operator()(const Supply &s, const Demand &d) {
-	return data()[s.id % data().shape()[0]][d.id % data().shape()[1]] + distrib_(gen);
+	return data()[s.id() % data().shape()[0]][d.id() % data().shape()[1]] + distrib_(gen);
 }
 
 ostream& operator<<(ostream& os, const Value& v){

@@ -15,21 +15,20 @@
 #include "demand.h"
 #include "../utils/omega.h"
 
-class Matching {
+class BernoulliMatching {
 private:
 	typedef boost::multi_array<bool, 2> DataType;
 	typedef DataType::index IndexType;
 	DataType data_;
-	std::mt19937_64 gen;
 public:
-	unsigned long id;
-	Matching(int supply_size, int demand_size);
-	Matching& full();
-	Matching& split(double share);
-	Matching& bernoulli(double p);
-	DataType data() const;
-	bool operator()(const Supply &s, const Demand &d) const;
-	friend std::ostream& operator<<(std::ostream& os, const Matching& matching);
+	BernoulliMatching(Omega & o, double p, int supply_size, int demand_size);
+	//Omega::Iter<std::bernoulli_distribution, DataType::> data;
+
+//	Matching& full();
+//	Matching& split(double share);
+//	Matching& bernoulli(double p);
+	bool operator()(const Supply &s, const Demand &d);// required as a matching
+	friend std::ostream& operator<<(std::ostream& os, const BernoulliMatching& matching);
 };
 
 #endif /* MATCHING_H_ */
