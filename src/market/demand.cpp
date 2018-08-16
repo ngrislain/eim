@@ -11,16 +11,15 @@
 #include <ctime>
 #include <iomanip>
 
+#include "params.h"
+
 using namespace std;
 using namespace std::chrono;
 
 std::uniform_int_distribution<unsigned long> Demand::id_distrib{};
-std::geometric_distribution<int> Demand::entry_distrib{};
-const double Demand::expected_entry_days = 5;
+std::geometric_distribution<int> Demand::entry_distrib{1/Params::demand_expected_entry_days};
 
-unsigned long Demand::id() const {
-	return id_;
-}
+unsigned long Demand::id() const {return id_;}
 
 std::chrono::system_clock::time_point Demand::travel_date() const {
 	return system_clock::now();

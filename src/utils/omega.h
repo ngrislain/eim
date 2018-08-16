@@ -25,9 +25,9 @@ private:
 public:
 	Omega();
 	Omega(unsigned long s);
-	template <typename R> Var<R> operator()(R r) {return Var<R>(*this, r);}
-	template <typename R, typename I> Iter<R,I> operator()(R r, I i) {return Iter<R,I>(*this, r, i);}
-	template <typename E> Ext<E> ext(E e) {return Ext<E>(*this, e);}
+	template <typename R> Var<R> var(R r) {return Var<R>(*this, r);}
+	template <typename R, typename I> Iter<R,I> iter(R r, I i) {return Iter<R,I>(*this, r, i);}
+	template <typename E> Ext<E> operator()(E e) {return Ext<E>(*this, e);}
 	Omega& operator++();
 	friend std::ostream& operator<<(std::ostream& os, const Omega& o);
 
@@ -98,12 +98,12 @@ public:
 		Ext(Omega &o, E &e) : Random(o), ext_(e) {random();}
 		inline E operator()() const {return ext_;}
 	};
-	Var<std::uniform_int_distribution<unsigned long>> integer() {return operator()(std::uniform_int_distribution<unsigned long>());}
-	Var<std::uniform_real_distribution<double>> real() {return operator()(std::uniform_real_distribution<double>());}
-	Var<std::normal_distribution<double>> norm() {return operator()(std::normal_distribution<double>());}
-	template <typename I> Iter<std::uniform_int_distribution<unsigned long>,I> integer(I i) {return operator()(std::uniform_int_distribution<unsigned long>(), i);}
-	template <typename I> Iter<std::uniform_real_distribution<double>,I> real(I i) {return operator()(std::uniform_real_distribution<double>(), i);}
-	template <typename I> Iter<std::normal_distribution<double>,I> norm(I i) {return operator()(std::normal_distribution<double>(), i);}
+	Var<std::uniform_int_distribution<unsigned long>> integer() {return var(std::uniform_int_distribution<unsigned long>());}
+	Var<std::uniform_real_distribution<double>> real() {return var(std::uniform_real_distribution<double>());}
+	Var<std::normal_distribution<double>> norm() {return var(std::normal_distribution<double>());}
+	template <typename I> Iter<std::uniform_int_distribution<unsigned long>,I> integer(I i) {return iter(std::uniform_int_distribution<unsigned long>(), i);}
+	template <typename I> Iter<std::uniform_real_distribution<double>,I> real(I i) {return iter(std::uniform_real_distribution<double>(), i);}
+	template <typename I> Iter<std::normal_distribution<double>,I> norm(I i) {return iter(std::normal_distribution<double>(), i);}
 };
 
 #endif /* UTILS_OMEGA_H_ */

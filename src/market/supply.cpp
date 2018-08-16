@@ -11,19 +11,22 @@
 #include <ctime>
 #include <iomanip>
 
+#include "params.h"
+
 using namespace std;
 using namespace std::chrono;
 
-const double Supply::expected_entry_days = 10;
+std::uniform_int_distribution<unsigned long> Supply::id_distrib{};
+std::geometric_distribution<int> Supply::entry_distrib{1/Params::supply_expected_entry_days};
 
-Supply::Supply(Omega &o) : id(o, uniform_int_distribution<unsigned long>()), entry(o, geometric_distribution<>(1/expected_entry_days)) {}
+unsigned long Supply::id() const {return id_;}
 
 std::chrono::system_clock::time_point Supply::travel_date() const {
 	return system_clock::now();
 }
 
 std::chrono::system_clock::time_point Supply::enter_date() const {
-	return system_clock::now()-hours(24*entry());
+	return system_clock::now()-hours(24*entry_);
 }
 
 ostream& operator<<(ostream& os, const Supply& s){

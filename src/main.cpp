@@ -33,15 +33,6 @@ int main() {
 //	Matching m = Matching(10, 10).bernoulli(0.5);
 //	cout << m << endl;
 //
-//	list<double> x, y;
-//	for (int i = 0; i < 10000; i++) {
-//		Demand d;
-//		time_t enter = chrono::system_clock::to_time_t(d.enter_date());
-//		time_t travel = chrono::system_clock::to_time_t(d.travel_date());
-//		x.push_back(enter);
-//		y.push_back(d.id());
-//	}
-//	//p.plot(x, y, ", 'ro', alpha=0.5");
 //
 //	array<Supply, 100> ss;
 //	array<Demand, 100> ds;
