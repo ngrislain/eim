@@ -12,30 +12,8 @@
 using namespace std;
 using namespace boost;
 
-//Matching& Matching::full() {
-//	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
-//		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
-//			data_[i][j] = 1;
-//		}
-//	}
-//	return *this;
-//};
-//
-//Matching& Matching::split(double share) {
-//	for (Matching::IndexType i=0; i<data().shape()[0]; i++) {
-//		for (Matching::IndexType j=0; j<data().shape()[1]; j++) {
-//			data_[i][j] = ((i < share*data().shape()[0]) && (j < share*data().shape()[1])) || ((i >= share*data().shape()[0]) && (j >= share*data().shape()[1]));
-//		}
-//	}
-//	return *this;
-//};
-
-bool BernoulliMatching::operator()(const Supply &s, const Demand &d) {
-	return data_[s.id() % data_.shape()[0]][d.id() % data_.shape()[1]];
-}
-
 ostream& operator<<(ostream& os, const BernoulliMatching& m){
-	os << "[[" << m.data_[0][0];
+	os << "BernoulliMatching(" << endl << "[[" << m.data_[0][0];
 	for (BernoulliMatching::IndexType j=1; j<m.data_.shape()[1]; j++) {
 		os << ", " << m.data_[0][j];
 	}
@@ -47,6 +25,6 @@ ostream& operator<<(ostream& os, const BernoulliMatching& m){
 		}
 		os << "]";
 	}
-	os << "]" << endl;
+	os << "])" << endl;
 	return os;
 }

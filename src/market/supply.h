@@ -11,6 +11,8 @@
 #include <random>
 #include <chrono>
 
+#include <iostream>
+
 class Supply {
 private:
 	unsigned long id_;
@@ -24,7 +26,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Supply& s);
 
 	// Implement the requirement for Omega::Ext
-	template <typename G> void random(G g) {
+	template <typename G> void random(G &g) {
 		id_ = id_distrib(g);
 		entry_ = entry_distrib(g);
 	}

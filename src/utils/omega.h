@@ -37,6 +37,8 @@ public:
 		Omega &omega_;
 		Random(Omega &o) : omega_(o) {omega_.randoms_.insert(this);}
 		~Random() {omega_.randoms_.erase(this);}
+		Random(Random&& r) = default;
+		Random& operator=(Random&& r) = default;//TODO Define move assignment
 		virtual void random() = 0;
 	public:
 		friend Omega& Omega::operator++();
@@ -95,7 +97,12 @@ public:
 		E ext_;
 		virtual void random() {ext_.random(omega_.value_generator_);}
 	public:
-		Ext(Omega &o, E &e) : Random(o), ext_(e) {random();}
+		Ext(Omega &o, E e) : Random(o), ext_(e) {random();}
+		Ext(Ext&& e) = default;
+		Ext& operator=(Ext&& e) {
+			ext_ = std::move(e.ext_);
+			return *this;
+		}
 		inline E operator()() const {return ext_;}
 	};
 	Var<std::uniform_int_distribution<unsigned long>> integer() {return var(std::uniform_int_distribution<unsigned long>());}

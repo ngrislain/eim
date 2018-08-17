@@ -10,6 +10,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <type_traits>
 
 #include "utils/plot.h"
 #include "utils/omega.h"
@@ -21,7 +22,7 @@ using namespace std;
 Tests::Tests() {
 	cout << "Running tests" << endl;
 	matching();
-	demand();
+//	demand();
 //	omega();
 }
 
@@ -30,24 +31,34 @@ void Tests::matching() {
 	Plot p;
 	Omega o;
 
-	auto m = o(BernoulliMatching(0.5, 10, 10));
+	//auto m = o(BernoulliMatching(0.5, 50, 50));
+	auto m = o(SplitMatching(0.5));
 	cout << m() << endl;
 
 	vector<Omega::Ext<Supply>> ss;
-	for (int i = 0; i < 100; i++) ss.push_back(o(Supply()));
+	for (int i = 0; i < 100; i++) {
+		ss.push_back(o(Supply()));
+	}
 	vector<Omega::Ext<Demand>> ds;
-	for (int i = 0; i < 100; i++) ds.push_back(o(Demand()));
+	for (int i = 0; i < 100; i++) {
+		ds.push_back(o(Demand()));
+	}
 
-	++o;
+	static_assert(is_move_assignable<Supply>::value, "Supply not move assignable");
+	static_assert(is_move_assignable<Omega::Ext<Supply>>::value, "Omega::Ext<Supply> not move assignable");
+
+	sort(ss.begin(), ss.end(), [](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return a().id()<b().id();});
+	sort(ds.begin(), ds.end(), [](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return a().id()<b().id();});
 
 	boost::multi_array<double, 2> image(boost::extents[100][100]);
 	for (int i = 0; i < ss.size(); i++) {
 		for (int j = 0; j < ds.size(); j++) {
-			cout << i << ", " << j << " " << ss[i]() << ", " << ds[j]() << endl;
 			image[i][j] = m()(ss[i](), ds[j]());
 		}
 	}
 
+	p.image(image);
+	++o;
 	p.image(image);
 }
 

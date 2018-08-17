@@ -10,9 +10,38 @@
 
 #include <iostream>
 #include <string>
+#include <limits>
 #include <boost/multi_array.hpp>
 #include "supply.h"
 #include "demand.h"
+
+class FullMatching {
+public:
+	FullMatching() {}
+	// Required as a matching
+	inline bool operator()(const Supply &s, const Demand &d) {return 1;}
+	friend std::ostream& operator<<(std::ostream& os, const FullMatching& m) {return os << "FullMatching()";}
+
+	// Required for Omega::Ext
+	template <typename G> void random(G &g) {}
+};
+
+class SplitMatching {
+private:
+	double share_;
+public:
+	SplitMatching(double share) : share_(share) {}
+	// Required as a matching
+	inline bool operator()(const Supply &s, const Demand &d) {
+		return (s.id() < share_*std::numeric_limits<unsigned long>::max() && d.id() < share_*std::numeric_limits<unsigned long>::max()) ||
+			(s.id() >= share_*std::numeric_limits<unsigned long>::max() && d.id() >= share_*std::numeric_limits<unsigned long>::max()) ?
+			1 : 0;
+	}
+	friend std::ostream& operator<<(std::ostream& os, const SplitMatching& m) {return os << "SplitMatching(" << m.share_ << ")";}
+
+	// Required for Omega::Ext
+	template <typename G> void random(G &g) {}
+};
 
 class BernoulliMatching {
 private:
@@ -22,15 +51,14 @@ private:
 	DataType data_;
 public:
 	BernoulliMatching(double p, int supply_size, int demand_size) : bernoulli_distrib_(p), data_(boost::extents[supply_size][demand_size]) {}
-//	Matching& full();
-//	Matching& split(double share);
-//	Matching& bernoulli(double p);
 	// Required as a matching
-	bool operator()(const Supply &s, const Demand &d);
-	friend std::ostream& operator<<(std::ostream& os, const BernoulliMatching& matching);
+	inline bool operator()(const Supply &s, const Demand &d) {
+		return data_[s.id() % data_.shape()[0]][d.id() % data_.shape()[1]];
+	}
+	friend std::ostream& operator<<(std::ostream& os, const BernoulliMatching& m);
 
 	// Required for Omega::Ext
-	template <typename G> void random(G g) {
+	template <typename G> void random(G &g) {
 		for (IndexType i=0; i<data_.shape()[0]; i++) {
 			for (IndexType j=0; j<data_.shape()[1]; j++) {
 				data_[i][j] = bernoulli_distrib_(g);

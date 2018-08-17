@@ -24,7 +24,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Demand& d);
 
 	// Implement the requirement for Omega::Ext
-	template <typename G> void random(G g) {
+	template <typename G> void random(G &g) {
 		id_ = id_distrib(g);
 		entry_ = entry_distrib(g);
 	}
