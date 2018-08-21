@@ -18,15 +18,52 @@
 #include "market/demand.h"
 #include "market/matching.h"
 #include "market/value.h"
+#include "market/treatment.h"
 #include "utils/for.h"
 
 Tests::Tests() {
 	std::cout << "Running tests" << std::endl;
+//	treatment();
 	value();
-	matching();
+//	matching();
 //	demand();
 //	omega();
 //	utils_for();
+}
+
+void Tests::treatment() {
+	std::cout << std::endl <<  "Testing Treatment" << std::endl;
+	Plot p;
+	Omega o_structure;
+	Omega o;
+
+	auto t = o(SplitTreatment(0.5, 0.4, 0.95));
+	std::cout << t() << std::endl;
+
+	std::vector<Omega::Ext<Supply>> ss;
+	for (int i = 0; i < 100; i++) {
+		ss.push_back(o(Supply()));
+	}
+	std::vector<Omega::Ext<Demand>> ds;
+	for (int i = 0; i < 100; i++) {
+		ds.push_back(o(Demand()));
+	}
+
+	auto s_ord = [&t](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return t()(a().id(),0)<t()(b().id(),0);};
+	auto d_ord = [&t](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return t()(0,a().id())<t()(0,b().id());};
+	sort(ss.begin(), ss.end(), s_ord);
+	sort(ds.begin(), ds.end(), d_ord);
+
+	boost::multi_array<double, 2> image(boost::extents[100][100]);
+	for (int i = 0; i < ss.size(); i++) {
+		for (int j = 0; j < ds.size(); j++) {
+			image[i][j] = t()(ss[i](), ds[j]());
+		}
+	}
+
+	p.image(image);
+	++o;
+	p.image(image);
 }
 
 void Tests::value() {
@@ -35,7 +72,7 @@ void Tests::value() {
 	Omega o_structure;
 	Omega o;
 
-	auto v = o(Value(Value::basic_structure, 10, 10, 0, 1));
+	auto v = o(Value(Value::basic_structure, 10, 10, 0, 0.8));
 	std::cout << v() << std::endl;
 
 	std::vector<Omega::Ext<Supply>> ss;
@@ -47,8 +84,8 @@ void Tests::value() {
 		ds.push_back(o(Demand()));
 	}
 
-	auto s_ord = [&v](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return (a().id()%4)<(b().id()%4);};
-	auto d_ord = [&v](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return (a().id()%4)<(b().id()%4);};
+	auto s_ord = [&v](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return v()(a().id(),0)<v()(b().id(),0);};
+	auto d_ord = [&v](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return v()(0,a().id())<v()(0,b().id());};
 	sort(ss.begin(), ss.end(), s_ord);
 	sort(ds.begin(), ds.end(), d_ord);
 
@@ -70,7 +107,7 @@ void Tests::matching() {
 	Omega o;
 
 	//auto m = o(BernoulliMatching(0.5, 50, 50));
-	auto m = o(SplitMatching(0.5));
+	auto m = o(SplitMatching(0.5, 0.25));
 	std::cout << m() << std::endl;
 
 	std::vector<Omega::Ext<Supply>> ss;
@@ -85,8 +122,11 @@ void Tests::matching() {
 	static_assert(std::is_move_assignable<Supply>::value, "Supply not move assignable");
 	static_assert(std::is_move_assignable<Omega::Ext<Supply>>::value, "Omega::Ext<Supply> not move assignable");
 
-	sort(ss.begin(), ss.end(), [](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return a().id()<b().id();});
-	sort(ds.begin(), ds.end(), [](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return a().id()<b().id();});
+	auto s_ord = [&m](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return m()(a().id(),0)<m()(b().id(),0);};
+	auto d_ord = [&m](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return m()(0,a().id())<m()(0,b().id());};
+
+	sort(ss.begin(), ss.end(), s_ord);
+	sort(ds.begin(), ds.end(), d_ord);
 
 	boost::multi_array<double, 2> image(boost::extents[100][100]);
 	for (int i = 0; i < ss.size(); i++) {

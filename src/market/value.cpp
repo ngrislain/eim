@@ -14,10 +14,10 @@ namespace b = boost;
 
 b::multi_array<double, 2> basic_structure_initializer() {
 	double data[4][4] = {
-			{ 1, 1, 0, 0 },
-			{ 1, 1, 0, 0 },
+			{ 1, 1, 0, -1 },
+			{ 1, 1, 0, -1 },
 			{ 0, 0, 1, 0 },
-			{ 0, 0, 0, 1 }};
+			{ -1, -1, 0, 1 }};
 	b::multi_array<double, 2> result(b::extents[4][4]);
 	for (int i=0; i<4; i++) {
 		for (int j=0; j<4; j++) {

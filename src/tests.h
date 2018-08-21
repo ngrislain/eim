@@ -11,6 +11,7 @@
 class Tests {
 public:
 	Tests();
+	void treatment();
 	void value();
 	void matching();
 	void demand();

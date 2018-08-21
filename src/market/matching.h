@@ -30,19 +30,20 @@ public:
 class SplitMatching {
 private:
 	static constexpr int p_ = 9634721;
-	double share_;
+	double supply_share_;
+	double demand_share_;
 public:
-	SplitMatching(double share) : share_(share) {}
+	SplitMatching(double supply_share, double demand_share) : supply_share_(supply_share), demand_share_(demand_share) {}
 	// Required as a matching
 	inline bool operator()(unsigned long i, unsigned long j) {
-		return ((i % p_) < share_*p_ && (j % p_) < share_*p_) ||
-			((i % p_) >= share_*p_ && (j % p_) >= share_*p_) ?
+		return ((i % p_) < supply_share_*p_ && (j % p_) < demand_share_*p_) ||
+			((i % p_) >= supply_share_*p_ && (j % p_) >= demand_share_*p_) ?
 			1 : 0;
 	}
 	inline bool operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
-	friend std::ostream& operator<<(std::ostream& os, const SplitMatching& m) {return os << "SplitMatching(" << m.share_ << ")";}
+	friend std::ostream& operator<<(std::ostream& os, const SplitMatching& m) {return os << "SplitMatching(supply share=" << m.supply_share_ << ", demand share=" << m.demand_share_ << ")";}
 
 	// Required for Omega::Ext
 	template <typename G> void random(G &g) {}

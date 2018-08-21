@@ -18,8 +18,8 @@ private:
 public:
 	FullTreatment(double treatment) : treatment_(treatment) {}
 	// Required as a treatment
-	inline bool operator()(unsigned long i, unsigned long j) {return std::exp(treatment_);}
-	inline bool operator()(const Supply &s, const Demand &d) {
+	inline double operator()(unsigned long i, unsigned long j) {return std::exp(treatment_);}
+	inline double operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
 	friend std::ostream& operator<<(std::ostream& os, const FullTreatment& t) {return os << "FullTreatment(" << t.treatment_ << ")";}
@@ -32,19 +32,20 @@ class SplitTreatment {
 private:
 	static constexpr int p_ = 9341837;
 	double treatment_;
-	double share_;
+	double supply_share_;
+	double demand_share_;
 public:
-	SplitTreatment(double treatment, double share) : treatment_(treatment), share_(share) {}
+	SplitTreatment(double treatment, double supply_share, double demand_share) : treatment_(treatment), supply_share_(supply_share), demand_share_(demand_share) {}
 	// Required as a matching
-	inline bool operator()(unsigned long i, unsigned long j) {
-		return ((i%p_) < share_*p_ && (j%p_) < share_*p_) ||
-			((i%p_) >= share_*p_ && (j%p_) >= share_*p_) ?
+	inline double operator()(unsigned long i, unsigned long j) {
+		return ((i%p_) < supply_share_*p_ && (j%p_) < demand_share_*p_) ||
+			((i%p_) >= supply_share_*p_ && (j%p_) >= demand_share_*p_) ?
 					std::exp(treatment_) : 1;
 	}
-	inline bool operator()(const Supply &s, const Demand &d) {
+	inline double operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
-	friend std::ostream& operator<<(std::ostream& os, const SplitTreatment& t) {return os << "SplitTreatment(" << t.treatment_ << ", " << t.share_ << ")";}
+	friend std::ostream& operator<<(std::ostream& os, const SplitTreatment& t) {return os << "SplitTreatment(treatment=" << t.treatment_ << ", supply share=" << t.supply_share_ << ", demand share=" << t.demand_share_ << ")";}
 
 	// Required for Omega::Ext
 	template <typename G> void random(G &g) {}
@@ -59,13 +60,13 @@ private:
 public:
 	BernoulliTreatment(double p, int supply_size, int demand_size) : bernoulli_distrib_(p), data_(boost::extents[supply_size][demand_size]) {}
 	// Required as a matching
-	inline bool operator()(unsigned long i, unsigned long j) {
+	inline double operator()(unsigned long i, unsigned long j) {
 		return data_[i % data_.shape()[0]][j % data_.shape()[1]];
 	}
-	inline bool operator()(const Supply &s, const Demand &d) {
+	inline double operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
-	friend std::ostream& operator<<(std::ostream& os, const BernoulliTreatment& m);
+	friend std::ostream& operator<<(std::ostream& os, const BernoulliTreatment& t);
 
 	// Required for Omega::Ext
 	template <typename G> void random(G &g) {
