@@ -36,6 +36,7 @@ public:
 	protected:
 		Omega &omega_;
 		Random(Omega &o) : omega_(o) {omega_.randoms_.insert(this);}
+		Random(Random &&r) : omega_(r.omega_) {omega_.randoms_.insert(this);}
 		~Random() {omega_.randoms_.erase(this);}
 		virtual void random() = 0;
 	public:

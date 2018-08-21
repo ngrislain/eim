@@ -31,7 +31,7 @@ public:
 	inline double operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
-	friend std::ostream& operator<<(std::ostream& os, const Value& v) {return os << "Value(" << v.noise_.shape()[0] << ", " << v.noise_.shape()[1] << ")";}
+	friend std::ostream& operator<<(std::ostream& os, const Value& v) {return os << "Value(supply size=" << v.noise_.shape()[0] << ", demand size=" << v.noise_.shape()[1] << ")";}
 
 	// Required for Omega::Ext
 	template <typename G> void random(G &g) {

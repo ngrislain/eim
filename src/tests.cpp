@@ -72,8 +72,15 @@ void Tests::value() {
 	Omega o_structure;
 	Omega o;
 
-	auto v = o(Value(Value::basic_structure, 10, 10, 0, 0.8));
+	std::cout << o << std::endl;
+	auto v = o(Value(Value::basic_structure, 10, 10, 0, 0.5));
 	std::cout << v() << std::endl;
+	std::cout << o << std::endl;
+
+	std::cout << o << std::endl;
+	auto s = o(Supply());
+	std::cout << s() << std::endl;
+	std::cout << o << std::endl;
 
 	std::vector<Omega::Ext<Supply>> ss;
 	for (int i = 0; i < 100; i++) {
@@ -97,8 +104,23 @@ void Tests::value() {
 	}
 
 	p.image(image);
-	++o;
-	p.image(image);
+	std::cout << ss.back()().id() << std::endl;
+	std::cout << ds.back()().id() << std::endl;
+	std::cout << o << std::endl;
+	for (int k=0; k<5; k++) {
+		++o;
+		sort(ss.begin(), ss.end(), s_ord);
+		sort(ds.begin(), ds.end(), d_ord);
+		for (int i = 0; i < ss.size(); i++) {
+			for (int j = 0; j < ds.size(); j++) {
+				image[i][j] = v()(ss[i](), ds[j]());
+			}
+		}
+		p.image(image);
+		std::cout << ss.back()().id() << std::endl;
+		std::cout << ds.back()().id() << std::endl;
+		std::cout << o << std::endl;
+	}
 }
 
 void Tests::matching() {
