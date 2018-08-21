@@ -29,15 +29,13 @@ public:
 	template<typename V> void plot(V const &x, V const &y, std::string const &args="") {
 		try {
 			boost::python::list x_data;
-			For<V, int, double>::each(x,
-							[&x_data](int k, double v) {
+			For<V, int, double>::each(x, [&x_data](int k, double v) {
 								x_data.append(v);
 							});
 			boost::python::numpy::ndarray x_array = boost::python::numpy::array(x_data);
 			main_namespace["x_array"] = x_array;
 			boost::python::list y_data;
-			For<V, int, double>::each(y,
-							[&y_data](int k, double v) {
+			For<V, int, double>::each(y, [&y_data](int k, double v) {
 								y_data.append(v);
 							});
 			boost::python::numpy::ndarray y_array = boost::python::numpy::array(y_data);
@@ -54,8 +52,7 @@ public:
 	template<typename V> void plot(V const &y, std::string const &args="") {
 		try {
 			boost::python::list x_data, y_data;
-			For<V, int, double>::each(y,
-							[&x_data, &y_data](int k, double v) {
+			For<V, int, double>::each(y, [&x_data, &y_data](int k, double v) {
 								x_data.append(k);
 								y_data.append(v);
 							});
@@ -76,8 +73,7 @@ public:
 		try {
 			boost::python::tuple shape = boost::python::make_tuple((int)im.shape()[0], (int)im.shape()[1]);
 			boost::python::list data;
-			For<V, std::array<int, 2>, double>::each(im,
-							[&data](std::array<int,2> k, double v) {
+			For<V, std::array<int, 2>, double>::each(im, [&data](std::array<int,2> k, double v) {
 								data.append(v);
 							});
 			boost::python::numpy::ndarray ndarray = boost::python::numpy::array(data);

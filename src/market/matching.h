@@ -9,8 +9,6 @@
 #define MATCHING_H_
 
 #include <iostream>
-#include <string>
-#include <limits>
 #include <boost/multi_array.hpp>
 #include "supply.h"
 #include "demand.h"
@@ -19,7 +17,10 @@ class FullMatching {
 public:
 	FullMatching() {}
 	// Required as a matching
-	inline bool operator()(const Supply &s, const Demand &d) {return 1;}
+	inline bool operator()(unsigned long i, unsigned long j) {return 1;}
+	inline bool operator()(const Supply &s, const Demand &d) {
+		return operator()(s.id(), d.id());
+	}
 	friend std::ostream& operator<<(std::ostream& os, const FullMatching& m) {return os << "FullMatching()";}
 
 	// Required for Omega::Ext
@@ -28,14 +29,18 @@ public:
 
 class SplitMatching {
 private:
+	static constexpr int p_ = 9634721;
 	double share_;
 public:
 	SplitMatching(double share) : share_(share) {}
 	// Required as a matching
-	inline bool operator()(const Supply &s, const Demand &d) {
-		return (s.id() < share_*std::numeric_limits<unsigned long>::max() && d.id() < share_*std::numeric_limits<unsigned long>::max()) ||
-			(s.id() >= share_*std::numeric_limits<unsigned long>::max() && d.id() >= share_*std::numeric_limits<unsigned long>::max()) ?
+	inline bool operator()(unsigned long i, unsigned long j) {
+		return ((i % p_) < share_*p_ && (j % p_) < share_*p_) ||
+			((i % p_) >= share_*p_ && (j % p_) >= share_*p_) ?
 			1 : 0;
+	}
+	inline bool operator()(const Supply &s, const Demand &d) {
+		return operator()(s.id(), d.id());
 	}
 	friend std::ostream& operator<<(std::ostream& os, const SplitMatching& m) {return os << "SplitMatching(" << m.share_ << ")";}
 
@@ -52,8 +57,11 @@ private:
 public:
 	BernoulliMatching(double p, int supply_size, int demand_size) : bernoulli_distrib_(p), data_(boost::extents[supply_size][demand_size]) {}
 	// Required as a matching
+	inline bool operator()(unsigned long i, unsigned long j) {
+		return data_[i % data_.shape()[0]][j % data_.shape()[1]];
+	}
 	inline bool operator()(const Supply &s, const Demand &d) {
-		return data_[s.id() % data_.shape()[0]][d.id() % data_.shape()[1]];
+		return operator()(s.id(), d.id());
 	}
 	friend std::ostream& operator<<(std::ostream& os, const BernoulliMatching& m);
 

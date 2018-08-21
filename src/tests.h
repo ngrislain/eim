@@ -11,9 +11,11 @@
 class Tests {
 public:
 	Tests();
+	void value();
 	void matching();
 	void demand();
 	void omega();
+	void utils_for();
 };
 
 #endif /* TESTS_H_ */

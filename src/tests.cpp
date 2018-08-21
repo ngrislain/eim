@@ -11,41 +11,79 @@
 #include <random>
 #include <vector>
 #include <type_traits>
+#include <algorithm>
 
 #include "utils/plot.h"
 #include "utils/omega.h"
 #include "market/demand.h"
 #include "market/matching.h"
-
-using namespace std;
+#include "market/value.h"
+#include "utils/for.h"
 
 Tests::Tests() {
-	cout << "Running tests" << endl;
+	std::cout << "Running tests" << std::endl;
+	value();
 	matching();
 //	demand();
 //	omega();
+//	utils_for();
+}
+
+void Tests::value() {
+	std::cout << std::endl <<  "Testing Value" << std::endl;
+	Plot p;
+	Omega o_structure;
+	Omega o;
+
+	auto v = o(Value(Value::basic_structure, 10, 10, 0, 1));
+	std::cout << v() << std::endl;
+
+	std::vector<Omega::Ext<Supply>> ss;
+	for (int i = 0; i < 100; i++) {
+		ss.push_back(o(Supply()));
+	}
+	std::vector<Omega::Ext<Demand>> ds;
+	for (int i = 0; i < 100; i++) {
+		ds.push_back(o(Demand()));
+	}
+
+	auto s_ord = [&v](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return (a().id()%4)<(b().id()%4);};
+	auto d_ord = [&v](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return (a().id()%4)<(b().id()%4);};
+	sort(ss.begin(), ss.end(), s_ord);
+	sort(ds.begin(), ds.end(), d_ord);
+
+	boost::multi_array<double, 2> image(boost::extents[100][100]);
+	for (int i = 0; i < ss.size(); i++) {
+		for (int j = 0; j < ds.size(); j++) {
+			image[i][j] = v()(ss[i](), ds[j]());
+		}
+	}
+
+	p.image(image);
+	++o;
+	p.image(image);
 }
 
 void Tests::matching() {
-	cout << endl <<  "Testing Matching" << endl;
+	std::cout << std::endl <<  "Testing Matching" << std::endl;
 	Plot p;
 	Omega o;
 
 	//auto m = o(BernoulliMatching(0.5, 50, 50));
 	auto m = o(SplitMatching(0.5));
-	cout << m() << endl;
+	std::cout << m() << std::endl;
 
-	vector<Omega::Ext<Supply>> ss;
+	std::vector<Omega::Ext<Supply>> ss;
 	for (int i = 0; i < 100; i++) {
 		ss.push_back(o(Supply()));
 	}
-	vector<Omega::Ext<Demand>> ds;
+	std::vector<Omega::Ext<Demand>> ds;
 	for (int i = 0; i < 100; i++) {
 		ds.push_back(o(Demand()));
 	}
 
-	static_assert(is_move_assignable<Supply>::value, "Supply not move assignable");
-	static_assert(is_move_assignable<Omega::Ext<Supply>>::value, "Omega::Ext<Supply> not move assignable");
+	static_assert(std::is_move_assignable<Supply>::value, "Supply not move assignable");
+	static_assert(std::is_move_assignable<Omega::Ext<Supply>>::value, "Omega::Ext<Supply> not move assignable");
 
 	sort(ss.begin(), ss.end(), [](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return a().id()<b().id();});
 	sort(ds.begin(), ds.end(), [](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return a().id()<b().id();});
@@ -63,69 +101,74 @@ void Tests::matching() {
 }
 
 void Tests::demand() {
-	cout << endl <<  "Testing Demand" << endl;
+	std::cout << std::endl <<  "Testing Demand" << std::endl;
 	Plot p;
 	Omega o;
-	vector<double> x, y;
+	std::vector<double> x, y;
 	auto d = o(Demand());
 	for (int i = 0; i < 10000; i++) {
-		time_t enter = chrono::system_clock::to_time_t(d().enter_date());
-		time_t travel = chrono::system_clock::to_time_t(d().travel_date());
+		time_t enter = std::chrono::system_clock::to_time_t(d().enter_date());
+		time_t travel = std::chrono::system_clock::to_time_t(d().travel_date());
 		x.push_back(enter);
 		++o;
 		y.push_back(d().id());
-//		cout << d() << endl;
+//		std::cout << d() << std::endl;
 	}
 	p.plot(x, y, ", 'ro', alpha=0.5");
 }
 
 void Tests::omega() {
-	cout << endl <<  "Testing Omega" << endl;
+	std::cout << std::endl <<  "Testing Omega" << std::endl;
 	Omega o(20);
 	std::normal_distribution<double> u{2,1};
-	cout << "o = " << o << endl;
+	std::cout << "o = " << o << std::endl;
 	//auto a = o(u);
 	auto a = o.var(std::normal_distribution<double>{3,1});
 	auto b = o.integer();
 	auto c = o.real();
 	auto d = o.norm();
 	auto e = o.var(std::exponential_distribution<>(0.1));
-	auto A = o.iter(u, array<double, 5>{});
-	array<unsigned long, 5> data;
+	auto A = o.iter(u, std::array<double, 5>{});
+	std::array<unsigned long, 5> data;
 	auto B = o.integer(data);
-	auto C = o.real(array<double, 5>{});
-	auto D = o.norm(array<double, 5>{});
-	auto E = o.iter(std::exponential_distribution<>(0.01), array<double, 10>{});
-	cout << "o = " << o << endl;
+	auto C = o.real(std::array<double, 5>{});
+	auto D = o.norm(std::array<double, 5>{});
+	auto E = o.iter(std::exponential_distribution<>(0.01), std::array<double, 10>{});
+	std::cout << "o = " << o << std::endl;
 	for (int i=0; i<1; i++) {
 		auto f = o.real();
-		cout << "o = " << o << endl;
-		cout << "f = " << f << endl;
+		std::cout << "o = " << o << std::endl;
+		std::cout << "f = " << f << std::endl;
 	}
-	cout << "o = " << o << endl;
-	cout << "a = " << a << endl;
-	cout << "b = " << b << endl;
-	cout << "c = " << c << endl;
-	cout << "d = " << d << endl;
-	cout << "a() = " << a() << endl;
-	cout << "b() = " << b() << endl;
-	cout << "c() = " << c() << endl;
-	cout << "d() = " << d() << endl;
+	std::cout << "o = " << o << std::endl;
+	std::cout << "a = " << a << std::endl;
+	std::cout << "b = " << b << std::endl;
+	std::cout << "c = " << c << std::endl;
+	std::cout << "d = " << d << std::endl;
+	std::cout << "a() = " << a() << std::endl;
+	std::cout << "b() = " << b() << std::endl;
+	std::cout << "c() = " << c() << std::endl;
+	std::cout << "d() = " << d() << std::endl;
 	for (int i=0; i<10; i++) {
-		cout << "++o" << endl; ++o;
-		cout << "a = " << a << endl;
-		cout << "b = " << b << endl;
-		cout << "c = " << c << endl;
-		cout << "d = " << d << endl;
-		cout << "e = " << e << endl;
-		cout << "e = " << e << endl;
-		cout << "A = " << A << endl;
-		cout << "A = " << A << endl;
-		cout << "B = " << B << endl;
-		cout << "C = " << C << endl;
-		cout << "D = " << D << endl;
-		cout << "E = " << E << endl;
-		cout << "E = " << E << endl;
+		std::cout << "++o" << std::endl; ++o;
+		std::cout << "a = " << a << std::endl;
+		std::cout << "b = " << b << std::endl;
+		std::cout << "c = " << c << std::endl;
+		std::cout << "d = " << d << std::endl;
+		std::cout << "e = " << e << std::endl;
+		std::cout << "e = " << e << std::endl;
+		std::cout << "A = " << A << std::endl;
+		std::cout << "A = " << A << std::endl;
+		std::cout << "B = " << B << std::endl;
+		std::cout << "C = " << C << std::endl;
+		std::cout << "D = " << D << std::endl;
+		std::cout << "E = " << E << std::endl;
+		std::cout << "E = " << E << std::endl;
 	}
+}
+
+void Tests::utils_for() {
+	std::vector<double> a = {1,2,3};
+	For<std::vector<double>, int, double>::each(a, [](int i, double x){std::cout << i << ", " << x*x << std::endl;});
 }
 

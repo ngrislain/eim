@@ -37,8 +37,6 @@ public:
 		Omega &omega_;
 		Random(Omega &o) : omega_(o) {omega_.randoms_.insert(this);}
 		~Random() {omega_.randoms_.erase(this);}
-		Random(Random&& r) = default;
-		Random& operator=(Random&& r) = default;//TODO Define move assignment
 		virtual void random() = 0;
 	public:
 		friend Omega& Omega::operator++();
@@ -54,6 +52,12 @@ public:
 		virtual void random() {value_ = random_(omega_.value_generator_);}
 	public:
 		Var(Omega &o, R r) : Random(o), random_(r) {random();}
+		Var(Var&& v) : Random(std::move(v)), random_(std::move(v.random_)), value_(std::move(v.value_)) {}
+		Var& operator=(Var&& v) {
+			random_ = std::move(v.random_);
+			value_ = std::move(v.value_);
+			return *this;
+		}
 		inline T operator()() const {return value_;}
 		friend std::ostream& operator<<(std::ostream& os, const Var& v) {return os << v.value_;}
 	};
@@ -75,6 +79,12 @@ public:
 		}
 	public:
 		Iter(Omega &o, R r, I i) : Random(o), random_(r), iter_(i) {random();}
+		Iter(Iter&& i) : Random(std::move(i)), random_(std::move(i.random_)), iter_(std::move(i.iter_)) {}
+		Iter& operator=(Iter&& i) {
+			random_ = std::move(i.random_);
+			iter_ = std::move(i.iter_);
+			return *this;
+		}
 		inline I operator()() const {return iter_;}
 		friend std::ostream& operator<<(std::ostream& os, const Iter& i) {
 			auto val = i.iter_.begin();
@@ -98,7 +108,7 @@ public:
 		virtual void random() {ext_.random(omega_.value_generator_);}
 	public:
 		Ext(Omega &o, E e) : Random(o), ext_(e) {random();}
-		Ext(Ext&& e) = default;
+		Ext(Ext&& e) : Random(std::move(e)), ext_(std::move(e.ext_)) {}
 		Ext& operator=(Ext&& e) {
 			ext_ = std::move(e.ext_);
 			return *this;
