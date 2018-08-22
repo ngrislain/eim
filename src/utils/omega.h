@@ -12,6 +12,8 @@
 #include <random>
 #include <iostream>
 
+//#define OMEGA_DEBUG_
+
 class Omega {
 public:
 	class Random;
@@ -35,9 +37,24 @@ public:
 	class Random {
 	protected:
 		Omega &omega_;
+#ifndef OMEGA_DEBUG_
 		Random(Omega &o) : omega_(o) {omega_.randoms_.insert(this);}
 		Random(Random &&r) : omega_(r.omega_) {omega_.randoms_.insert(this);}
 		~Random() {omega_.randoms_.erase(this);}
+#else
+		Random(Omega &o) : omega_(o) {
+			std::cout << "Inserting element in " << omega_ << std::endl;
+			omega_.randoms_.insert(this);
+		}
+		Random(Random &&r) : omega_(r.omega_) {
+			std::cout << "Inserting element in " << omega_ << std::endl;
+			omega_.randoms_.insert(this);
+		}
+		~Random() {
+			std::cout << "Removing element in " << omega_ << std::endl;
+			omega_.randoms_.erase(this);
+		}
+#endif //OMEGA_DEBUG_
 		virtual void random() = 0;
 	public:
 		friend Omega& Omega::operator++();
@@ -59,7 +76,7 @@ public:
 			value_ = std::move(v.value_);
 			return *this;
 		}
-		inline T operator()() const {return value_;}
+		inline T& operator()() {return value_;}
 		friend std::ostream& operator<<(std::ostream& os, const Var& v) {return os << v.value_;}
 	};
 
@@ -86,7 +103,7 @@ public:
 			iter_ = std::move(i.iter_);
 			return *this;
 		}
-		inline I operator()() const {return iter_;}
+		inline I& operator()() {return iter_;}
 		friend std::ostream& operator<<(std::ostream& os, const Iter& i) {
 			auto val = i.iter_.begin();
 			auto end = i.iter_.end();
@@ -114,7 +131,7 @@ public:
 			ext_ = std::move(e.ext_);
 			return *this;
 		}
-		inline E operator()() const {return ext_;}
+		inline E& operator()() {return ext_;}
 	};
 	Var<std::uniform_int_distribution<unsigned long>> integer() {return var(std::uniform_int_distribution<unsigned long>());}
 	Var<std::uniform_real_distribution<double>> real() {return var(std::uniform_real_distribution<double>());}

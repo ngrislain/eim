@@ -12,7 +12,7 @@
 using namespace std;
 namespace b = boost;
 
-b::multi_array<double, 2> basic_structure_initializer() {
+const StructuredNoisyValue::DataType StructuredNoisyValue::basic_structure([](){
 	double data[4][4] = {
 			{ 1, 1, 0, -1 },
 			{ 1, 1, 0, -1 },
@@ -25,9 +25,7 @@ b::multi_array<double, 2> basic_structure_initializer() {
 		}
 	}
 	return result;
-}
-
-const Value::DataType Value::basic_structure(basic_structure_initializer());
+}());
 
 
 

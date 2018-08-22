@@ -14,7 +14,7 @@
 #include "supply.h"
 #include "demand.h"
 
-class Value {
+class StructuredNoisyValue {
 private:
 	typedef boost::multi_array<double, 2> DataType;
 	typedef DataType::index IndexType;
@@ -22,7 +22,7 @@ private:
 	DataType structure_;
 	DataType noise_;
 public:
-	Value(DataType structure, int supply_size, int demand_size, double mu, double sigma) :
+	StructuredNoisyValue(DataType structure, int supply_size, int demand_size, double mu, double sigma) :
 		structure_(structure), noise_(boost::extents[supply_size][demand_size]), distrib_(mu, sigma) {}
 	inline double operator()(unsigned long i, unsigned long j) {
 		return structure_[i % structure_.shape()[0]][j % structure_.shape()[1]] +
@@ -31,7 +31,7 @@ public:
 	inline double operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
-	friend std::ostream& operator<<(std::ostream& os, const Value& v) {return os << "Value(supply size=" << v.noise_.shape()[0] << ", demand size=" << v.noise_.shape()[1] << ")";}
+	friend std::ostream& operator<<(std::ostream& os, const StructuredNoisyValue& v) {return os << "Value(supply size=" << v.noise_.shape()[0] << ", demand size=" << v.noise_.shape()[1] << ")";}
 
 	// Required for Omega::Ext
 	template <typename G> void random(G &g) {

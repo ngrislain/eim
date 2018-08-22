@@ -17,14 +17,14 @@
 #include "utils/omega.h"
 #include "market/demand.h"
 #include "market/matching.h"
-#include "market/value.h"
 #include "market/treatment.h"
+#include "market/value.h"
 #include "utils/for.h"
 
 Tests::Tests() {
 	std::cout << "Running tests" << std::endl;
 //	treatment();
-	value();
+//	value();
 //	matching();
 //	demand();
 //	omega();
@@ -49,8 +49,8 @@ void Tests::treatment() {
 		ds.push_back(o(Demand()));
 	}
 
-	auto s_ord = [&t](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return t()(a().id(),0)<t()(b().id(),0);};
-	auto d_ord = [&t](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return t()(0,a().id())<t()(0,b().id());};
+	auto s_ord = [&t](Omega::Ext<Supply> &a, Omega::Ext<Supply> &b){return t()(a().id(),0)<t()(b().id(),0);};
+	auto d_ord = [&t](Omega::Ext<Demand> &a, Omega::Ext<Demand> &b){return t()(0,a().id())<t()(0,b().id());};
 	sort(ss.begin(), ss.end(), s_ord);
 	sort(ds.begin(), ds.end(), d_ord);
 
@@ -73,7 +73,7 @@ void Tests::value() {
 	Omega o;
 
 	std::cout << o << std::endl;
-	auto v = o(Value(Value::basic_structure, 10, 10, 0, 0.5));
+	auto v = o(StructuredNoisyValue(StructuredNoisyValue::basic_structure, 10, 10, 0, 0.5));
 	std::cout << v() << std::endl;
 	std::cout << o << std::endl;
 
@@ -91,8 +91,8 @@ void Tests::value() {
 		ds.push_back(o(Demand()));
 	}
 
-	auto s_ord = [&v](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return v()(a().id(),0)<v()(b().id(),0);};
-	auto d_ord = [&v](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return v()(0,a().id())<v()(0,b().id());};
+	auto s_ord = [&v](Omega::Ext<Supply> &a, Omega::Ext<Supply> &b){return v()(a().id(),0)<v()(b().id(),0);};
+	auto d_ord = [&v](Omega::Ext<Demand> &a, Omega::Ext<Demand> &b){return v()(0,a().id())<v()(0,b().id());};
 	sort(ss.begin(), ss.end(), s_ord);
 	sort(ds.begin(), ds.end(), d_ord);
 
@@ -144,8 +144,8 @@ void Tests::matching() {
 	static_assert(std::is_move_assignable<Supply>::value, "Supply not move assignable");
 	static_assert(std::is_move_assignable<Omega::Ext<Supply>>::value, "Omega::Ext<Supply> not move assignable");
 
-	auto s_ord = [&m](const Omega::Ext<Supply> &a, const Omega::Ext<Supply> &b){return m()(a().id(),0)<m()(b().id(),0);};
-	auto d_ord = [&m](const Omega::Ext<Demand> &a, const Omega::Ext<Demand> &b){return m()(0,a().id())<m()(0,b().id());};
+	auto s_ord = [&m](Omega::Ext<Supply> &a, Omega::Ext<Supply> &b){return m()(a().id(),0)<m()(b().id(),0);};
+	auto d_ord = [&m](Omega::Ext<Demand> &a, Omega::Ext<Demand> &b){return m()(0,a().id())<m()(0,b().id());};
 
 	sort(ss.begin(), ss.end(), s_ord);
 	sort(ds.begin(), ds.end(), d_ord);

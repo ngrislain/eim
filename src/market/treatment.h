@@ -8,7 +8,9 @@
 #ifndef MARKET_TREATMENT_H_
 #define MARKET_TREATMENT_H_
 
+#include <iostream>
 #include <cstdlib>
+#include <boost/multi_array.hpp>
 #include "supply.h"
 #include "demand.h"
 
