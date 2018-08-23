@@ -23,7 +23,7 @@
 
 Tests::Tests() {
 	std::cout << "Running tests" << std::endl;
-//	treatment();
+	treatment();
 //	value();
 //	matching();
 //	demand();
@@ -37,15 +37,17 @@ void Tests::treatment() {
 	Omega o_structure;
 	Omega o;
 
-	auto t = o(SplitTreatment(0.5, 0.4, 0.95));
+//	auto t = o(SplitTreatment(0.5, 0.5, 1));
+//	auto t = o(BernoulliTreatment(0.5, 0.3, 10, 10));
+	auto t = o(CompoundBernoulliTreatment(0.5, 3, 3, 500, 500));
 	std::cout << t() << std::endl;
 
 	std::vector<Omega::Ext<Supply>> ss;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 500; i++) {
 		ss.push_back(o(Supply()));
 	}
 	std::vector<Omega::Ext<Demand>> ds;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 500; i++) {
 		ds.push_back(o(Demand()));
 	}
 
@@ -54,7 +56,7 @@ void Tests::treatment() {
 	sort(ss.begin(), ss.end(), s_ord);
 	sort(ds.begin(), ds.end(), d_ord);
 
-	boost::multi_array<double, 2> image(boost::extents[100][100]);
+	boost::multi_array<double, 2> image(boost::extents[ss.size()][ds.size()]);
 	for (int i = 0; i < ss.size(); i++) {
 		for (int j = 0; j < ds.size(); j++) {
 			image[i][j] = t()(ss[i](), ds[j]());
@@ -62,8 +64,19 @@ void Tests::treatment() {
 	}
 
 	p.image(image);
-	++o;
-	p.image(image);
+
+	std::vector<double> sx;
+	std::vector<double> dx;
+	for (int i = 0; i < ss.size(); i++) {
+		sx.push_back(t().marginal(ss[i]()));
+	}
+	for (int j = 0; j < ds.size(); j++) {
+		dx.push_back(t().marginal(ds[j]()));
+	}
+	sort(sx.begin(), sx.end());
+	sort(dx.begin(), dx.end());
+	p.plot(sx);
+	p.plot(dx);
 }
 
 void Tests::value() {

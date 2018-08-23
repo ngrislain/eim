@@ -64,6 +64,20 @@ public:
 	inline bool operator()(const Supply &s, const Demand &d) {
 		return operator()(s.id(), d.id());
 	}
+	inline double marginal(const Supply &s) {
+		double result = 0;
+		for (int j=0; j<data_.shape()[1]; j++) {
+			result += data_[s.id() % data_.shape()[0]][j];
+		}
+		return result/data_.shape()[1];
+	}
+	inline double marginal(const Demand &d) {
+		double result = 0;
+		for (int i=0; i<data_.shape()[0]; i++) {
+			result += data_[i][d.id() % data_.shape()[1]];
+		}
+		return result/data_.shape()[0];
+	}
 	friend std::ostream& operator<<(std::ostream& os, const BernoulliMatching& m);
 
 	// Required for Omega::Ext

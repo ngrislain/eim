@@ -17,16 +17,16 @@ using namespace std;
 using namespace std::chrono;
 
 std::uniform_int_distribution<unsigned long> Supply::id_distrib{};
-std::geometric_distribution<int> Supply::entry_distrib{1/Params::supply_expected_entry_days};
+std::exponential_distribution<double> Supply::entry_distrib{1/Params::supply_expected_entry_days};
 
 unsigned long Supply::id() const {return id_;}
 
 std::chrono::system_clock::time_point Supply::travel_date() const {
-	return system_clock::now();
+	return now_;
 }
 
 std::chrono::system_clock::time_point Supply::enter_date() const {
-	return system_clock::now()-hours(24*entry_);
+	return now_-std::chrono::seconds((int)(24*3600*entry_));
 }
 
 ostream& operator<<(ostream& os, const Supply& s){
