@@ -17,6 +17,14 @@ print(data[0])
 # Get the parameters
 parameters = sorted({m['parameter'] for m in data})
 print(parameters)
+parameter = parameters[len(parameters)*3//4]
+print(parameter)
+value = sum([m['value'] for m in data if m['parameter']==parameter])/sum([m['total'] for m in data if m['parameter']==parameter])
+control = sum([m['control'] for m in data if m['parameter']==parameter])/sum([m['total'] for m in data if m['parameter']==parameter])
+cov = sum([m['control_x_value'] for m in data if m['parameter']==parameter]) - sum([m['control'] for m in data if m['parameter']==parameter])*sum([m['value'] for m in data if m['parameter']==parameter])/sum([m['total'] for m in data if m['parameter']==parameter])
+var = sum([m['control_x_control'] for m in data if m['parameter']==parameter]) - sum([m['control'] for m in data if m['parameter']==parameter])**2/sum([m['total'] for m in data if m['parameter']==parameter])
+print('value = {} + {}.(control-{})'.format(value, cov/var, control))
+print('value full treatment = {}'.format(value + cov/var*(1-control)))
 
 def plot(data, fun=lambda m: m['value'], cond=lambda m: True, color='tab:blue'):
     parameters = sorted({m['parameter'] for m in data if cond(m)})
@@ -27,6 +35,9 @@ def plot(data, fun=lambda m: m['value'], cond=lambda m: True, color='tab:blue'):
 plot(data, lambda m: m['value']/m['total'], lambda m: True, 'tab:red')
 plot(data, lambda m: m['treated_x_value']/m['treated'], lambda m: m['parameter']>0.5, 'tab:green')
 plot(data, lambda m: (m['value']-m['treated_x_value'])/(m['total']-m['treated']), lambda m: m['parameter']<0.8, 'tab:blue')
+
+plt.plot([control, 1], [value, value + cov/var*(1-control)], color="black", linestyle='--', linewidth=1, marker='o')
+
 plt.show()
 
 

@@ -46,7 +46,7 @@ int main() {
 		cout << "Distribution mean = " << mean << endl;
 
 		Market<StructuredNoisyValue, CompoundBernoulliTreatment, FullMatching> m(500, 500,
-						StructuredNoisyValue(StructuredNoisyValue::basic_structure, 100, 100, 0, 1),
+						StructuredNoisyValue(StructuredNoisyValue::basic_structure, 100, 100, 0, 2),
 						CompoundBernoulliTreatment(0.1, 5, p, 100, 100),
 						FullMatching());
 
