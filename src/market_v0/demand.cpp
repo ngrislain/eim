@@ -5,13 +5,13 @@
  *      Author: ngrislain16
  */
 
-#include "demand.h"
+#include "../market_v0/demand.h"
 
 #include <iostream>
 #include <ctime>
 #include <iomanip>
 
-#include "params.h"
+#include "../market_v0/params.h"
 
 using namespace std;
 using namespace std::chrono;

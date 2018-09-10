@@ -5,8 +5,8 @@
  *      Author: ngrislain16
  */
 
-#ifndef UTILS_PLOT_H_
-#define UTILS_PLOT_H_
+#ifndef UTILS_V0_PLOT_H_
+#define UTILS_V0_PLOT_H_
 
 #include <iostream>
 #include <string>
@@ -17,7 +17,7 @@
 #include <boost/python/numpy.hpp>
 #include <boost/multi_array.hpp>
 
-#include "for.h"
+#include "../utils_v0/for.h"
 
 class Plot {
 private:
@@ -90,4 +90,4 @@ public:
 	};
 };
 
-#endif /* UTILS_PLOT_H_ */
+#endif /* UTILS_V0_PLOT_H_ */

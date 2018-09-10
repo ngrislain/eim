@@ -5,7 +5,7 @@
  *      Author: ngrislain16
  */
 
-#include "omega.h"
+#include "../utils_v0/omega.h"
 
 Omega::Omega() : seed_generator_(), value_generator_(seed_generator_()) {}
 

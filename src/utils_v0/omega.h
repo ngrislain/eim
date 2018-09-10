@@ -5,8 +5,8 @@
  *      Author: ngrislain16
  */
 
-#ifndef UTILS_OMEGA_H_
-#define UTILS_OMEGA_H_
+#ifndef UTILS_V0_OMEGA_H_
+#define UTILS_V0_OMEGA_H_
 
 #include <set>
 #include <random>
@@ -141,4 +141,4 @@ public:
 	template <typename I> Iter<std::normal_distribution<double>,I> norm(I i) {return iter(std::normal_distribution<double>(), i);}
 };
 
-#endif /* UTILS_OMEGA_H_ */
+#endif /* UTILS_V0_OMEGA_H_ */

@@ -5,15 +5,16 @@
  *      Author: ngrislain16
  */
 
-#ifndef MARKET_MARKET_H_
-#define MARKET_MARKET_H_
+#ifndef MARKET_V0_MARKET_H_
+#define MARKET_V0_MARKET_H_
 
 #include <vector>
 #include <queue>
 #include <set>
-#include "supply.h"
-#include "demand.h"
-#include "../utils/omega.h"
+
+#include "../market_v0/demand.h"
+#include "../market_v0/supply.h"
+#include "../utils_v0/omega.h"
 
 //#define MARKET_DEBUG_
 
@@ -178,4 +179,4 @@ public:
 	}
 };
 
-#endif /* MARKET_MARKET_H_ */
+#endif /* MARKET_V0_MARKET_H_ */

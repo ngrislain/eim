@@ -5,8 +5,8 @@
  *      Author: ngrislain16
  */
 
-#ifndef UTILS_FOR_H_
-#define UTILS_FOR_H_
+#ifndef UTILS_V0_FOR_H_
+#define UTILS_V0_FOR_H_
 
 #include <array>
 #include <functional>
@@ -36,4 +36,4 @@ struct For<boost::multi_array<T, n>, std::array<int, n>, double> {
 	};
 };
 
-#endif /* UTILS_FOR_H_ */
+#endif /* UTILS_V0_FOR_H_ */

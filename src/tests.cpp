@@ -13,22 +13,22 @@
 #include <type_traits>
 #include <algorithm>
 
-#include "utils/plot.h"
-#include "utils/omega.h"
-#include "market/demand.h"
-#include "market/matching.h"
-#include "market/treatment.h"
-#include "market/value.h"
-#include "utils/for.h"
+#include "market_v0/demand.h"
+#include "market_v0/matching.h"
+#include "market_v0/treatment.h"
+#include "market_v0/value.h"
+#include "utils_v0/for.h"
+#include "utils_v0/omega.h"
+#include "utils_v0/plot.h"
 
 Tests::Tests() {
 	std::cout << "Running tests" << std::endl;
 	treatment();
-//	value();
-//	matching();
-//	demand();
-//	omega();
-//	utils_for();
+	value();
+	matching();
+	demand();
+	omega();
+	utils_for();
 }
 
 void Tests::treatment() {

@@ -5,14 +5,15 @@
  *      Author: ngrislain16
  */
 
-#ifndef MARKET_TREATMENT_H_
-#define MARKET_TREATMENT_H_
+#ifndef MARKET_V0_TREATMENT_H_
+#define MARKET_V0_TREATMENT_H_
 
 #include <iostream>
 #include <cstdlib>
 #include <boost/multi_array.hpp>
-#include "supply.h"
-#include "demand.h"
+
+#include "../market_v0/demand.h"
+#include "../market_v0/supply.h"
 
 class FullTreatment {
 private:
@@ -145,4 +146,4 @@ public:
 	}
 };
 
-#endif /* MARKET_TREATMENT_H_ */
+#endif /* MARKET_V0_TREATMENT_H_ */

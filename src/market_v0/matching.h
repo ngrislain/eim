@@ -10,8 +10,9 @@
 
 #include <iostream>
 #include <boost/multi_array.hpp>
-#include "supply.h"
-#include "demand.h"
+
+#include "../market_v0/demand.h"
+#include "../market_v0/supply.h"
 
 class FullMatching {
 public:
