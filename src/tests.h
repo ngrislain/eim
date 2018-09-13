@@ -8,15 +8,9 @@
 #ifndef TESTS_H_
 #define TESTS_H_
 
-class Tests {
-public:
-	Tests();
-	void treatment();
-	void value();
-	void matching();
-	void demand();
+namespace tests {
 	void omega();
-	void utils_for();
-};
+	void market();
+}
 
 #endif /* TESTS_H_ */
