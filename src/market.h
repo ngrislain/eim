@@ -28,7 +28,7 @@ public:
 	Agent(Omega &o) : RandomVariable(o), id_(0) {};
 	unsigned long id() const {return id_;};
 	double feature(int i) const {return features_[i];};
-	virtual void draw(Generator generator) override;
+	virtual void draw(Generator &generator) override;
 };
 
 class Driver : Agent {

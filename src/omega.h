@@ -21,9 +21,11 @@ private:
 	Omega &omega_;
 public:
 	RandomVariable(Omega &o);
+	RandomVariable(const RandomVariable &rv) : RandomVariable(rv.omega_) {};
+	RandomVariable& operator=(const RandomVariable &rv) = delete;
 	virtual ~RandomVariable();
 	// To be implemented
-	virtual void draw(Generator generator) = 0;
+	virtual void draw(Generator &generator) = 0;
 };
 
 class Omega {

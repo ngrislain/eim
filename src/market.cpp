@@ -9,7 +9,7 @@
 #include <random>
 #include <cmath>
 
-void Agent::draw(Generator generator) {
+void Agent::draw(Generator &generator) {
 	id_ = generator();
 	std::normal_distribution<double> normal{};
 	features_[constant_feature] = 1;

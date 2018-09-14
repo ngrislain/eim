@@ -14,16 +14,16 @@
 #include <type_traits>
 #include <algorithm>
 
+#include "json.h"
 #include "omega.h"
 #include "market.h"
-#include "utils.h"
 
 // Create an ad-hoc class
 class RandomVector : RandomVariable {
 public:
 	std::vector<double> vector;
 	RandomVector(Omega &o) : RandomVariable(o) {};
-	void draw(Generator g) override {
+	void draw(Generator &g) override {
 		vector.clear();
 		for (int i=0; i<3; i++) {
 			vector.push_back(std::normal_distribution<double>()(g));
@@ -53,13 +53,15 @@ void tests::omega() {
 void tests::market() {
 	std::cout << std::endl << "Running market tests" << std::endl;
 	Omega o;
-	std::vector<Driver> drivers;
+	json::array<Driver> drivers;
 	for (int i=0; i<1000; i++) {
 		drivers.push_back(Driver(o));
 	}
+	std::cout << o;
 	++o;
+	std::cout << o;
 	std::ofstream file;
-	file.open("/tmp/eim/passengers.json");
+	file.open("/tmp/eim_passengers.json", std::ofstream::out);
 	file << drivers;
 	file.close();
 }
