@@ -10,6 +10,7 @@
 
 #include <array>
 #include "omega.h"
+#include "json.h"
 
 static constexpr int supply_dim = 1000;
 static constexpr int demand_dim = 1000;
@@ -20,7 +21,7 @@ enum Feature : int {
 	constant_feature = 0, days_before_departure_feature = 1, price_feature = 2, geo_feature = 3
 };
 
-class Agent : RandomVariable {
+class Agent : RandomVariable, public json::Serializable {
 private:
 	unsigned long id_;
 	std::array<double,feature_dim> features_;
@@ -29,20 +30,21 @@ public:
 	unsigned long id() const {return id_;};
 	double feature(int i) const {return features_[i];};
 	virtual void draw(Generator &generator) override;
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
-class Driver : Agent {
+class Driver : public Agent {
 public:
 	Driver(Omega &o) : Agent(o) {};
 	double days_before_departure() const;
-	friend std::ostream& operator<<(std::ostream& os, const Driver& d);
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
-class Passenger : Agent {
+class Passenger : public Agent {
 public:
 	Passenger(Omega &o) : Agent(o) {};
 	double days_before_departure() const;
-	friend std::ostream& operator<<(std::ostream& os, const Passenger& p);
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
 #endif /* MARKET_H_ */

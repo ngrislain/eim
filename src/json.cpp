@@ -25,19 +25,26 @@ std::ostream& json::Object::json(std::ostream& os, int indent) const {
 	os << "{";
 	for (const std::pair<const String, const std::unique_ptr<Serializable>&> &kv : *this) {
 		os << separator << std::endl;
-		for (int i=0; i<indent+1; i++) {os << "  ";}
+		for (int i = 0; i < indent + 1; i++) {
+			os << "  ";
+		}
 		os << kv.first << ":";
-		kv.second->json(os, indent+1);
+		kv.second->json(os, indent + 1);
 		separator = ",";
 	}
 	os << std::endl;
-	for (int i=0; i<indent; i++) {os << "  ";}
+	for (int i = 0; i < indent; i++) {
+		os << "  ";
+	}
 	os << "}";
 	return os;
 }
 
-template <>
-json::Object& json::Object::set<bool>(std::string key, bool b) {return set(key, new Bool(b));};
+template<>
+json::Object& json::Object::set<bool>(std::string key, bool b) {
+	return set(key, new Bool(b));
+}
+;
 
 std::ostream& json::Array::json(std::ostream& os, int indent) const {
 	std::string separator = "";
@@ -50,11 +57,17 @@ std::ostream& json::Array::json(std::ostream& os, int indent) const {
 	return os;
 }
 
-template <>
-json::Array& json::Array::add<bool>(bool b) {return add(new Bool(b));};
+template<>
+json::Array& json::Array::add<bool>(bool b) {
+	return add(new Bool(b));
+}
+;
 
-template <>
-json::Array& json::Array::set<bool>(int i, bool b) {return set(i, new Bool(b));};
+template<>
+json::Array& json::Array::set<bool>(int i, bool b) {
+	return set(i, new Bool(b));
+}
+;
 
 std::ostream& json::Bool::json(std::ostream& os, int indent) const {
 	if (bool_) {

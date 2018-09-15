@@ -19,36 +19,45 @@ void Agent::draw(Generator &generator) {
 	}
 }
 
+std::ostream& Agent::json(std::ostream& os, int indent) const {
+	json::Object result;
+	result.set("type", "Agent")
+			.set("id", id())
+			.set<json::Array>("features");
+	for (int i=1; i<feature_dim; i++) {
+		result.get<json::Array>("features").add(feature(i));
+	}
+	return result.json(os);
+}
+
 double Driver::days_before_departure() const {
 	return 20*std::exp(0.5*feature(days_before_departure_feature));
 }
 
-std::ostream& operator<<(std::ostream& os, const Driver& d) {
+std::ostream& Driver::json(std::ostream& os, int indent) const {
 	json::Object result;
 	result.set("type", "Driver")
-			.set("id", d.id())
+			.set("id", id())
 			.set<json::Array>("features");
 	for (int i=1; i<feature_dim; i++) {
-		result.get<json::Array>("features").add(d.feature(i));
+		result.get<json::Array>("features").add(feature(i));
 	}
-	result.set("days_before_departure", d.days_before_departure());
-	return os;
+	result.set("days_before_departure", days_before_departure());
+	return result.json(os);
 }
 
 double Passenger::days_before_departure() const {
 	return 15*std::exp(0.5*feature(days_before_departure_feature));
 }
 
-std::ostream& operator<<(std::ostream& os, const Passenger& p) {
-	os << "{" << std::endl <<
-				"  \"type\":\"Passenger\"," << std::endl <<
-				"  \"id\":\"" << std::hex << p.id() << "\"," << std::endl <<
-				"  \"features\":[" << p.feature(0);
-		for (int i=1; i<feature_dim; i++) {
-			os << ", " << p.feature(i);
-		}
-		os << "]," << std::endl <<
-				"  \"days_before_departure\":" << p.days_before_departure() << std::endl <<
-				"}";
-		return os;
+std::ostream& Passenger::json(std::ostream& os, int indent) const {
+	json::Object result;
+	result.set("type", "Passenger")
+			.set("id", id())
+			.set<json::Array>("features");
+	for (int i=1; i<feature_dim; i++) {
+		result.get<json::Array>("features").add(feature(i));
+	}
+	result.set("days_before_departure", days_before_departure());
+	return result.json(os);
 }

@@ -25,8 +25,8 @@ void tests::json() {
 	a.add(2).add(3.).add("Hello").add<json::Array>();
 	a.add<json::Object>().get<json::Object>()
 			.set("test", "ok")
-			.set("other", "value");
-			//.set("passenger", new Passenger(o));
+			.set("other", "value")
+			.set("passenger", new Passenger(o));
 	std::cout << a << std::endl;
 }
 
