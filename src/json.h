@@ -18,31 +18,40 @@ namespace json {
 // An interface for a Json Serializable object
 class Serializable {
 public:
-//	Serializable() = default;
-//	Serializable(const Serializable &s) = default;
-//	Serializable& operator=(const Serializable &s) = default;
 	virtual ~Serializable() = default;
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const = 0;
 	friend std::ostream& operator<<(std::ostream& os, const Serializable& s);
 };
 
-template<typename N>
-using if_arithmetic = typename std::enable_if<std::is_arithmetic<N>::value>::type;
+template<typename I>
+using if_integral = typename std::enable_if<std::is_integral<I>::value>::type*;
+template<typename X>
+using if_floating_point = typename std::enable_if<std::is_floating_point<X>::value>::type*;
 template<typename S>
-using if_serializable = typename std::enable_if<std::is_base_of<Serializable, S>::value>::type;
+using if_serializable = typename std::enable_if<std::is_base_of<Serializable, S>::value>::type*;
 
-// Number
-class Number: public Serializable {
+// Integer
+template<typename I, typename = if_integral<I>>
+class Integer: public Serializable {
 private:
-	double number_;
+	I integer_;
 public:
-	Number(double n) :
-			number_(n) {
+	Integer(I i) : integer_(i) {}
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override {
+		return os << integer_;
 	}
-	operator double() const {
-		return number_;
+};
+
+// Real
+template<typename X, if_floating_point<X> = nullptr>
+class Real: public Serializable {
+private:
+	X real_;
+public:
+	Real(X x) : real_(x) {}
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override {
+		return os << real_;
 	}
-	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
 // String
@@ -55,27 +64,30 @@ public:
 };
 
 // Object
-class Object: public std::map<String, std::unique_ptr<Serializable>>,
-		public Serializable {
+class Object: public std::map<String, std::unique_ptr<Serializable>>, public Serializable {
 public:
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	S& get(std::string key) {
 		return *(dynamic_cast<S*>((*this)[key].get()));
 	}
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	Object& set(std::string key, S *s) {
 		(*this)[key] = std::unique_ptr<Serializable>(dynamic_cast<Serializable*>(s));
 		return *this;
 	}
-	template<typename N, typename = if_arithmetic<N>>
-	Object& set(std::string key, N n) {
-		return set(key, new json::Number(n));
+	template<typename I, if_integral<I> = nullptr>
+	Object& set(std::string key, I i) {
+		return set(key, new json::Integer<I>(i));
+	}
+	template<typename X, if_floating_point<X> = nullptr>
+	Object& set(std::string key, X x) {
+		return set(key, new json::Real<X>(x));
 	}
 	Object& set(std::string key, const std::string &s) {
 		return set(key, new json::String(s));
 	}
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	Object& set(std::string key) {
 		(*this)[key] = std::unique_ptr<S>(new S());
 		return *this;
@@ -87,46 +99,54 @@ class Array: public std::vector<std::unique_ptr<Serializable>>,
 		public Serializable {
 public:
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	S& get() {
 		return *(dynamic_cast<S*>(back().get()));
 	}
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	S& get(int i) {
 		return *(dynamic_cast<S*>((*this)[i].get()));
 	}
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	Array& add(S *s) {
 		push_back(std::unique_ptr<S>(s));
 		return *this;
 	}
-	template<typename N, typename = if_arithmetic<N>>
-	Array& add(N n) {
-		return add(new Number(n));
+	template<typename I, if_integral<I> = nullptr>
+	Array& add(I i) {
+		return add(new json::Integer<I>(i));
+	}
+	template<typename X, if_floating_point<X> = nullptr>
+	Array& add(X x) {
+		return add(new json::Real<X>(x));
 	}
 	Array& add(const std::string &s) {
 		return add(new String(s));
 	}
-	template<typename S, typename = if_serializable<S>>
+	template<typename S, if_serializable<S> = nullptr>
 	Array& add() {
 		push_back(std::unique_ptr<S>(new S()));
 		return *this;
 	}
-	template<typename S, typename = if_serializable<S>>
-	Array& set(int i, S *s) {
-		(*this)[i] = std::unique_ptr<S>(s);
+	template<typename S, if_serializable<S> = nullptr>
+	Array& set(int k, S *s) {
+		(*this)[k] = std::unique_ptr<S>(s);
 		return *this;
 	}
-	template<typename N, typename = if_arithmetic<N>>
-	Array& set(int i, N n) {
-		return set(i, new json::Number(n));
+	template<typename I, if_integral<I> = nullptr>
+	Array& set(int k, I i) {
+		return set(k, new json::Integer<I>(i));
 	}
-	Array& set(int i, const std::string &s) {
-		return set(i, new json::String(s));
+	template<typename X, if_floating_point<X> = nullptr>
+			Array& set(int k, X x) {
+		return set(k, new json::Real<X>(x));
 	}
-	template<typename S, typename = if_serializable<S>>
-	Array& set(int i) {
-		(*this)[i] = std::unique_ptr<S>(new S());
+	Array& set(int k, const std::string &s) {
+		return set(k, new json::String(s));
+	}
+	template<typename S, if_serializable<S> = nullptr>
+	Array& set(int k) {
+		(*this)[k] = std::unique_ptr<S>(new S());
 		return *this;
 	}
 };

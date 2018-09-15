@@ -12,10 +12,6 @@ std::ostream& json::operator<<(std::ostream& os, const json::Serializable& s) {
 	return s.json(os);
 }
 
-std::ostream& json::Number::json(std::ostream& os, int indent) const {
-	return os << number_;
-}
-
 std::ostream& json::String::json(std::ostream& os, int indent) const {
 	return os << "\"" << static_cast<std::string>(*this) << "\"";
 }

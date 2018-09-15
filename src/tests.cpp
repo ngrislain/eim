@@ -27,6 +27,7 @@ void tests::json() {
 			.set("test", "ok")
 			.set("other", "value")
 			.set("passenger", new Passenger(o));
+	++o;
 	std::cout << a << std::endl;
 }
 

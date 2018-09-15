@@ -8,6 +8,7 @@
 #include "market.h"
 #include <random>
 #include <cmath>
+#include <sstream>
 #include "json.h"
 
 void Agent::draw(Generator &generator) {
@@ -27,7 +28,7 @@ std::ostream& Agent::json(std::ostream& os, int indent) const {
 	for (int i=1; i<feature_dim; i++) {
 		result.get<json::Array>("features").add(feature(i));
 	}
-	return result.json(os);
+	return result.json(os, indent);
 }
 
 double Driver::days_before_departure() const {
@@ -43,7 +44,7 @@ std::ostream& Driver::json(std::ostream& os, int indent) const {
 		result.get<json::Array>("features").add(feature(i));
 	}
 	result.set("days_before_departure", days_before_departure());
-	return result.json(os);
+	return result.json(os, indent);
 }
 
 double Passenger::days_before_departure() const {
@@ -53,11 +54,11 @@ double Passenger::days_before_departure() const {
 std::ostream& Passenger::json(std::ostream& os, int indent) const {
 	json::Object result;
 	result.set("type", "Passenger")
-			.set("id", id())
+		.set("id", id())
 			.set<json::Array>("features");
 	for (int i=1; i<feature_dim; i++) {
 		result.get<json::Array>("features").add(feature(i));
 	}
 	result.set("days_before_departure", days_before_departure());
-	return result.json(os);
+	return result.json(os, indent);
 }
