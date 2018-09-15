@@ -9,6 +9,7 @@
 #define TESTS_H_
 
 namespace tests {
+	void json();
 	void omega();
 	void market();
 }

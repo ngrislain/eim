@@ -16,6 +16,7 @@
 using namespace std;
 
 int main() {
+	tests::json();
 	tests::omega();
 	tests::market();
 	return 0;

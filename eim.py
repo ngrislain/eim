@@ -2,7 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
-print(np.log(5))
+with open('/tmp/eim/drivers.json') as f:
+    drivers = json.load(f)
+
+with open('/tmp/eim/passengers.json') as f:
+    passengers = json.load(f)
+
+for p in passengers:
+    print(p)
+
+plt.ylim((0,60))
+plt.plot(np.sort([d['days_before_departure'] for d in drivers]))
+plt.plot(np.sort([p['days_before_departure'] for p in passengers]))
+plt.show()
 
 # with open('/tmp/output.json') as f:
 #     data = json.load(f)

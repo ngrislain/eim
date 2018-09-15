@@ -7,16 +7,28 @@
 
 #include "tests.h"
 
+#include <cstdlib>
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <random>
 #include <vector>
-#include <type_traits>
-#include <algorithm>
 
 #include "json.h"
 #include "omega.h"
 #include "market.h"
+
+void tests::json() {
+	std::cout << std::endl << "Running json tests" << std::endl;
+	Omega o;
+	json::Array a;
+	a.add(2).add(3.).add("Hello").add<json::Array>();
+	a.add<json::Object>().get<json::Object>()
+			.set("test", "ok")
+			.set("other", "value");
+			//.set("passenger", new Passenger(o));
+	std::cout << a << std::endl;
+}
 
 // Create an ad-hoc class
 class RandomVector : RandomVariable {
@@ -53,16 +65,23 @@ void tests::omega() {
 void tests::market() {
 	std::cout << std::endl << "Running market tests" << std::endl;
 	Omega o;
-	json::array<Driver> drivers;
-	for (int i=0; i<1000; i++) {
-		drivers.push_back(Driver(o));
-	}
-	std::cout << o;
+	json::Array drivers;
+	json::Array passengers;
+//	for (int i=0; i<1000; i++) {
+//		drivers.push_back(std::unique_ptr<json::Serializable>(new Driver(o)));
+//		passengers.push_back(std::unique_ptr<json::Serializable>(new Passenger(o)));
+//	}
 	++o;
-	std::cout << o;
+
+	std::system("mkdir /tmp/eim");
 	std::ofstream file;
-	file.open("/tmp/eim_passengers.json", std::ofstream::out);
+
+	file.open("/tmp/eim/drivers.json", std::ofstream::out);
 	file << drivers;
+	file.close();
+
+	file.open("/tmp/eim/passengers.json", std::ofstream::out);
+	file << passengers;
 	file.close();
 }
 

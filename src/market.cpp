@@ -19,13 +19,13 @@ void Agent::draw(Generator &generator) {
 }
 
 double Driver::days_before_departure() const {
-	return 20*std::exp(feature(days_before_departure_feature));
+	return 20*std::exp(0.5*feature(days_before_departure_feature));
 }
 
 std::ostream& operator<<(std::ostream& os, const Driver& d) {
 	os << "{" << std::endl <<
 			"  \"type\":\"Driver\"," << std::endl <<
-			"  \"id\":" << std::hex << d.id() << "," << std::endl <<
+			"  \"id\":\"" << std::hex << d.id() << "\"," << std::endl <<
 			"  \"features\":[" << d.feature(0);
 	for (int i=1; i<feature_dim; i++) {
 		os << ", " << d.feature(i);
@@ -37,13 +37,13 @@ std::ostream& operator<<(std::ostream& os, const Driver& d) {
 }
 
 double Passenger::days_before_departure() const {
-	return 15*std::exp(feature(days_before_departure_feature));
+	return 15*std::exp(0.5*feature(days_before_departure_feature));
 }
 
 std::ostream& operator<<(std::ostream& os, const Passenger& p) {
 	os << "{" << std::endl <<
 				"  \"type\":\"Passenger\"," << std::endl <<
-				"  \"id\":" << std::hex << p.id() << "," << std::endl <<
+				"  \"id\":\"" << std::hex << p.id() << "\"," << std::endl <<
 				"  \"features\":[" << p.feature(0);
 		for (int i=1; i<feature_dim; i++) {
 			os << ", " << p.feature(i);
