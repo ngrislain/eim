@@ -8,6 +8,7 @@
 #include "market.h"
 #include <random>
 #include <cmath>
+#include "json.h"
 
 void Agent::draw(Generator &generator) {
 	id_ = generator();
@@ -23,16 +24,14 @@ double Driver::days_before_departure() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Driver& d) {
-	os << "{" << std::endl <<
-			"  \"type\":\"Driver\"," << std::endl <<
-			"  \"id\":\"" << std::hex << d.id() << "\"," << std::endl <<
-			"  \"features\":[" << d.feature(0);
+	json::Object result;
+	result.set("type", "Driver")
+			.set("id", d.id())
+			.set<json::Array>("features");
 	for (int i=1; i<feature_dim; i++) {
-		os << ", " << d.feature(i);
+		result.get<json::Array>("features").add(d.feature(i));
 	}
-	os << "]," << std::endl <<
-			"  \"days_before_departure\":" << d.days_before_departure() << std::endl <<
-			"}";
+	result.set("days_before_departure", d.days_before_departure());
 	return os;
 }
 

@@ -18,11 +18,8 @@ namespace json {
 	// An interface for a Json Serializable object
 	class Serializable {
 	public:
-		Serializable() = default;
-		Serializable(const Serializable &s) = default;
 		virtual ~Serializable() = default;
 		virtual std::ostream& json(std::ostream& os, int indent=0) const = 0;
-		std::string json() const;
 		friend std::ostream& operator<<(std::ostream& os, const Serializable& s);
 	};
 
@@ -89,6 +86,19 @@ namespace json {
 			push_back(std::unique_ptr<S>(new S()));
 			return *this;
 		}
+		template <typename S, typename = if_serializable<S>>
+		Array& set(int i, S *s) {
+			(*this)[i] = std::unique_ptr<S>(s);
+			return *this;
+		};
+		template <typename N, typename = if_arithmetic<N>>
+		Array& set(int i, N n) {return set(i, new json::Number(n));}
+		Array& set(int i, const std::string &s) {return set(i, new json::String(s));}
+		template <typename S, typename = if_serializable<S>>
+		Array& set(int i) {
+			(*this)[i] = std::unique_ptr<S>(new S());
+			return *this;
+		};
 	};
 
 	class Bool : public Serializable {

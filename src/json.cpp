@@ -6,14 +6,7 @@
  */
 
 #include "json.h"
-#include <sstream>
 #include <utility>
-
-std::string json::Serializable::json() const {
-	std::ostringstream oss;
-	json(oss);
-	return oss.str();
-}
 
 std::ostream& json::operator<<(std::ostream& os, const json::Serializable& s) {
 	return s.json(os);
@@ -59,6 +52,9 @@ std::ostream& json::Array::json(std::ostream& os, int indent) const {
 
 template <>
 json::Array& json::Array::add<bool>(bool b) {return add(new Bool(b));};
+
+template <>
+json::Array& json::Array::set<bool>(int i, bool b) {return set(i, new Bool(b));};
 
 std::ostream& json::Bool::json(std::ostream& os, int indent) const {
 	if (bool_) {
