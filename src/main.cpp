@@ -19,5 +19,8 @@ int main() {
 	tests::json();
 	tests::omega();
 	tests::market();
+	tests::value();
+	tests::modifier();
+	tests::utils();
 	return 0;
 }

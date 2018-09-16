@@ -2,25 +2,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
-with open('/tmp/eim/drivers.json') as f:
-    drivers = json.load(f)
+def market():
+    with open('/tmp/eim/drivers.json') as f:
+        drivers = json.load(f)
+    
+    with open('/tmp/eim/passengers.json') as f:
+        passengers = json.load(f)
+    
+    for p in passengers:
+        print(p)
+    
+    plt.ylim((0,60))
+    plt.plot(np.sort([d['days_before_departure'] for d in drivers]))
+    plt.plot(np.sort([p['days_before_departure'] for p in passengers]))
+    plt.show()
+    
+def value():
+    with open('/tmp/eim/value.json') as f:
+        value = json.load(f)
+    plt.imshow(value['parameters'])
+    plt.show()
+    with open('/tmp/eim/value_representation.json') as f:
+        value_representation = np.array(json.load(f))
+    v = value_representation[np.argsort(value_representation[:,np.random.randint(0,50)]),:][:,np.argsort(value_representation[np.random.randint(0,50),:])]
+    plt.imshow(v)
+    plt.show()
+    print(np.min(v), np.max(v))
 
-with open('/tmp/eim/passengers.json') as f:
-    passengers = json.load(f)
+def modifier():
+    with open('/tmp/eim/treatment.json') as f:
+        treatment = json.load(f)
+    plt.imshow(treatment['parameters'])
+    plt.show()
+    with open('/tmp/eim/matching.json') as f:
+        matching = json.load(f)
+    plt.imshow(matching['parameters'])
+    plt.show()
 
-for p in passengers:
-    print(p)
-
-plt.ylim((0,60))
-plt.plot(np.sort([d['days_before_departure'] for d in drivers]))
-plt.plot(np.sort([p['days_before_departure'] for p in passengers]))
-plt.show()
-
-with open('/tmp/eim/value.json') as f:
-    value = json.load(f)
-
-plt.imshow(value['parameters'])
-plt.show()
+#market()
+value()
+modifier()
 
 # with open('/tmp/output.json') as f:
 #     data = json.load(f)

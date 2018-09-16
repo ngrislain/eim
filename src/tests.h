@@ -12,6 +12,9 @@ namespace tests {
 	void json();
 	void omega();
 	void market();
+	void value();
+	void modifier();
+	void utils();
 }
 
 #endif /* TESTS_H_ */

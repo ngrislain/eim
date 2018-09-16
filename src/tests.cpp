@@ -13,10 +13,12 @@
 #include <fstream>
 #include <random>
 #include <vector>
+#include <valarray>
 
 #include "json.h"
 #include "omega.h"
 #include "market.h"
+#include "utils.h"
 
 void tests::json() {
 	std::cout << std::endl << "Running json tests" << std::endl;
@@ -26,7 +28,7 @@ void tests::json() {
 	a.add<json::Object>().get<json::Object>()
 			.set("test", "ok")
 			.set("other", "value")
-			.set("passenger", new Passenger(o));
+			.set("passenger", new market::Demand(o));
 	++o;
 	std::cout << a << std::endl;
 }
@@ -69,8 +71,8 @@ void tests::market() {
 	json::Array drivers;
 	json::Array passengers;
 	for (int i=0; i<1000; i++) {
-		drivers.push_back(std::unique_ptr<json::Serializable>(new Driver(o)));
-		passengers.push_back(std::unique_ptr<json::Serializable>(new Passenger(o)));
+		drivers.push_back(std::unique_ptr<json::Serializable>(new market::Supply(o)));
+		passengers.push_back(std::unique_ptr<json::Serializable>(new market::Demand(o)));
 	}
 	++o;
 	std::system("mkdir /tmp/eim");
@@ -83,12 +85,67 @@ void tests::market() {
 	file.open("/tmp/eim/passengers.json", std::ofstream::out);
 	file << passengers;
 	file.close();
+}
 
-	Omega lto; // Long term
-	Value v(lto);
-	++lto;
+void tests::value() {
+	int driver_size = 100;
+	int passenger_size = 80;
+	Omega o;
+	market::SoftValue v(o);
+	//market::TreatmentModifier m(o, 0.1, 0.5);
+	market::SupplyTreatmentModifier m(o, 0.1, 0.6);
+	++o;
+	std::vector<market::Supply> drivers;
+	std::vector<market::Demand> passengers;
+	std::valarray<double> values(driver_size*passenger_size);
+
+	for (int i=0; i<driver_size; i++) {
+		drivers.push_back(market::Supply(o));
+	}
+	for (int j=0; j<passenger_size; j++) {
+		passengers.push_back(market::Demand(o));
+	}
+	++o;
+	for (int i=0; i<driver_size; i++) {
+		for (int j=0; j<passenger_size; j++) {
+			values[i*passenger_size+j] = m(drivers[i], passengers[j], v);
+		}
+	}
+	json::Array result;
+	for (int i=0; i<driver_size; i++) {
+		result.add<json::Array>();
+		for (int j=0; j<passenger_size; j++) {
+			result.get<json::Array>(i).add(values[passenger_size*i + j]);
+		}
+	}
+	std::system("mkdir /tmp/eim");
+	std::ofstream file;
 	file.open("/tmp/eim/value.json", std::ofstream::out);
 	file << v << std::endl;
 	file.close();
+	file.open("/tmp/eim/value_representation.json", std::ofstream::out);
+	file << result << std::endl;
+	file.close();
+}
+
+void tests::modifier() {
+	Omega o;
+	market::TreatmentModifier tm(o);
+	market::MatchingModifier mm(o);
+	++o;
+	std::system("mkdir /tmp/eim");
+	std::ofstream file;
+	file.open("/tmp/eim/treatment.json", std::ofstream::out);
+	file << tm << std::endl;
+	file.close();
+	file.open("/tmp/eim/matching.json", std::ofstream::out);
+	file << mm << std::endl;
+	file.close();
+}
+
+void tests::utils() {
+	std::cout << std::endl << "Running utils tests" << std::endl;
+	Index<11,11> idx;
+	std::cout << idx[3][2] << std::endl;
 }
 
