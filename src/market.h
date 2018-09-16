@@ -47,4 +47,15 @@ public:
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
+class Value : RandomVariable, public json::Serializable {
+private:
+	std::array<double,feature_dim*feature_dim> parameters_;
+public:
+	Value(Omega &o) : RandomVariable(o) {};
+	double operator()(const Driver &d, const Passenger &p);
+	std::array<double,feature_dim*feature_dim> parameters() {return parameters_;}
+	virtual void draw(Generator &generator) override;
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
+};
+
 #endif /* MARKET_H_ */

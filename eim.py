@@ -16,6 +16,12 @@ plt.plot(np.sort([d['days_before_departure'] for d in drivers]))
 plt.plot(np.sort([p['days_before_departure'] for p in passengers]))
 plt.show()
 
+with open('/tmp/eim/value.json') as f:
+    value = json.load(f)
+
+plt.imshow(value['parameters'])
+plt.show()
+
 # with open('/tmp/output.json') as f:
 #     data = json.load(f)
 # 

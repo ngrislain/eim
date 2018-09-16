@@ -68,12 +68,11 @@ void tests::market() {
 	Omega o;
 	json::Array drivers;
 	json::Array passengers;
-//	for (int i=0; i<1000; i++) {
-//		drivers.push_back(std::unique_ptr<json::Serializable>(new Driver(o)));
-//		passengers.push_back(std::unique_ptr<json::Serializable>(new Passenger(o)));
-//	}
+	for (int i=0; i<1000; i++) {
+		drivers.push_back(std::unique_ptr<json::Serializable>(new Driver(o)));
+		passengers.push_back(std::unique_ptr<json::Serializable>(new Passenger(o)));
+	}
 	++o;
-
 	std::system("mkdir /tmp/eim");
 	std::ofstream file;
 
@@ -83,6 +82,13 @@ void tests::market() {
 
 	file.open("/tmp/eim/passengers.json", std::ofstream::out);
 	file << passengers;
+	file.close();
+
+	Omega lto; // Long term
+	Value v(lto);
+	++lto;
+	file.open("/tmp/eim/value.json", std::ofstream::out);
+	file << v << std::endl;
 	file.close();
 }
 

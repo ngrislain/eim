@@ -62,3 +62,28 @@ std::ostream& Passenger::json(std::ostream& os, int indent) const {
 	result.set("days_before_departure", days_before_departure());
 	return result.json(os, indent);
 }
+
+void Value::draw(Generator &generator) {
+	std::normal_distribution<double> normal{};
+	for (int i=0; i<feature_dim; i++) {
+		for (int j=0; j<feature_dim; j++) {
+			parameters_[feature_dim*i + j] = normal(generator);
+		}
+	}
+}
+
+std::ostream& Value::json(std::ostream& os, int indent) const {
+	json::Object result;
+	result.set("type", "Value")
+			.set<json::Array>("parameters");
+	for (int i=0; i<feature_dim; i++) {
+		result.get<json::Array>("parameters")
+				.add<json::Array>();
+		for (int j=0; j<feature_dim; j++) {
+			result.get<json::Array>("parameters")
+					.get<json::Array>(i)
+					.add(parameters_[feature_dim*i + j]);
+		}
+	}
+	return result.json(os, indent);
+}

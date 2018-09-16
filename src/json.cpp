@@ -40,7 +40,6 @@ template<>
 json::Object& json::Object::set<bool>(std::string key, bool b) {
 	return set(key, new Bool(b));
 }
-;
 
 std::ostream& json::Array::json(std::ostream& os, int indent) const {
 	std::string separator = "";
@@ -57,13 +56,11 @@ template<>
 json::Array& json::Array::add<bool>(bool b) {
 	return add(new Bool(b));
 }
-;
 
 template<>
 json::Array& json::Array::set<bool>(int i, bool b) {
 	return set(i, new Bool(b));
 }
-;
 
 std::ostream& json::Bool::json(std::ostream& os, int indent) const {
 	if (bool_) {
