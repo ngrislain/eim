@@ -24,7 +24,8 @@ def value():
     plt.show()
     with open('/tmp/eim/value_representation.json') as f:
         value_representation = np.array(json.load(f))
-    v = value_representation[np.argsort(value_representation[:,np.random.randint(0,50)]),:][:,np.argsort(value_representation[np.random.randint(0,50),:])]
+    v = value_representation[np.argsort(np.sum(value_representation,1)),:][:,np.argsort(np.sum(value_representation,0))]
+    #v = value_representation[np.argsort(value_representation[:,np.random.randint(0,50)]),:][:,np.argsort(value_representation[np.random.randint(0,50),:])]
     plt.imshow(v)
     plt.show()
     print(np.min(v), np.max(v))

@@ -92,8 +92,9 @@ void tests::value() {
 	int passenger_size = 80;
 	Omega o;
 	market::SoftValue v(o);
-	//market::TreatmentModifier m(o, 0.1, 0.5);
-	market::SupplyTreatmentModifier m(o, 0.1, 0.6);
+	//market::TreatmentModifier m(o, 0.1);
+	//market::SupplyTreatmentModifier m(o, 0.1);
+	market::MatchingModifier m(o, 0.9);
 	++o;
 	std::vector<market::Supply> drivers;
 	std::vector<market::Demand> passengers;

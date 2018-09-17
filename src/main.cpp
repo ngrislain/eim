@@ -5,22 +5,20 @@
  *      Author: ngrislain16
  */
 #include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <iomanip>
-
 #include "tests.h"
+#include "market.h"
 
 using namespace std;
 
 int main() {
-	tests::json();
-	tests::omega();
-	tests::market();
-	tests::value();
-	tests::modifier();
-	tests::utils();
+//	tests::json();
+//	tests::omega();
+//	tests::market();
+//	tests::value();
+//	tests::modifier();
+//	tests::utils();
+
+	market::Experiment experiment{};
+	experiment.run();
 	return 0;
 }

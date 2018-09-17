@@ -9,12 +9,13 @@
 #define MARKET_H_
 
 #include <array>
+#include <vector>
 #include "omega.h"
 #include "json.h"
 
 namespace market {
-static constexpr int supply_dim = 1000;
-static constexpr int demand_dim = 1000;
+static constexpr int supply_dim = 20;
+static constexpr int demand_dim = 10;
 static constexpr int feature_dim = 5;
 static constexpr int supply_split_dim = 100;
 static constexpr int demand_split_dim = 100;
@@ -79,7 +80,7 @@ protected:
 public:
 	Modifier(Omega &o) : RandomVariable(o) {};
 	std::array<double,supply_split_dim*demand_split_dim> parameters() const {return parameters_;}
-	double operator()(const Supply &s, const Demand &d, const Value &v) const;
+	double operator()(const Supply &s, const Demand &d, const Value &v, double impact) const;
 	virtual void draw(Generator &generator) override = 0;
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
@@ -87,28 +88,60 @@ public:
 class TreatmentModifier : public Modifier {
 private:
 	double proba_;
-	double impact_;
 public:
-	TreatmentModifier(Omega &o, double proba=0.5, double impact=0.1) : Modifier(o), proba_(proba), impact_(impact) {};
+	TreatmentModifier(Omega &o, double proba=0.5) : Modifier(o), proba_(proba) {};
 	virtual void draw(Generator &generator) override;
 };
 
 class SupplyTreatmentModifier : public Modifier {
 private:
 	double proba_;
-	double impact_;
 public:
-	SupplyTreatmentModifier(Omega &o, double proba=0.5, double impact=0.1) : Modifier(o), proba_(proba), impact_(impact) {};
+	SupplyTreatmentModifier(Omega &o, double proba=0.5) : Modifier(o), proba_(proba) {};
 	virtual void draw(Generator &generator) override;
 };
 
 class MatchingModifier : public Modifier {
 private:
 	double proba_;
-	double impact_;
 public:
-	MatchingModifier(Omega &o, double proba=0.1, double impact=-100) : Modifier(o), proba_(proba), impact_(impact) {};
+	MatchingModifier(Omega &o, double proba=0.9) : Modifier(o), proba_(proba) {};
+	double operator()(const Supply &s, const Demand &d, const Value &v) const;
 	virtual void draw(Generator &generator) override;
+};
+
+struct Result : public json::Serializable {
+	double gmv;
+	Result(double gmv) : gmv(gmv) {}
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
+};
+
+struct SupplyValue : public json::Serializable {
+	Supply *supply;
+	double value;
+	SupplyValue(Supply *supply, double value) : supply(supply), value(value) {}
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
+};
+
+struct DemandValue : public json::Serializable {
+	Demand *demand;
+	double value;
+	DemandValue(Demand *demand, double value) : demand(demand), value(value) {}
+	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
+};
+
+class Experiment {
+public:
+	// General fields
+	Omega omega;
+	Omega long_term_omega;
+	std::vector<Supply> supply;
+	std::vector<Demand> demand;
+	SoftValue supply_value;
+	NormalValue demand_value;
+	TreatmentModifier treatment;
+	Experiment();
+	Result run();
 };
 
 }
