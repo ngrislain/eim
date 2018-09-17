@@ -14,11 +14,12 @@
 #include "json.h"
 
 namespace market {
-static constexpr int supply_dim = 20;
-static constexpr int demand_dim = 10;
+static constexpr int supply_dim = 100;
+static constexpr int demand_dim = 100;
 static constexpr int feature_dim = 5;
 static constexpr int supply_split_dim = 100;
 static constexpr int demand_split_dim = 100;
+static constexpr int market_iterations = 10;
 
 // Some interpretations of the main feature factors
 enum Feature : int {
@@ -137,11 +138,23 @@ public:
 	Omega long_term_omega;
 	std::vector<Supply> supply;
 	std::vector<Demand> demand;
+	// Create maps for book-keeping;
+	std::set<Supply*> supply_searching;
+	std::set<Demand*> demand_searching;
+	std::multimap<Supply*, DemandValue> supply_candidates;
+	std::multimap<Demand*, SupplyValue> demand_candidates;
+	std::map<Supply*, Demand*> matched;
+	bool match = false;
+	// Values and modifiers
 	SoftValue supply_value;
 	NormalValue demand_value;
 	TreatmentModifier treatment;
 	Experiment();
 	Result run();
+	void reset();
+	void demand_propose();
+	void supply_dispose();
+	void print();
 };
 
 }

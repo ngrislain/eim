@@ -19,6 +19,9 @@ int main() {
 //	tests::utils();
 
 	market::Experiment experiment{};
-	experiment.run();
+	for (int k=0; k<100; k++) {
+		std::cout << "Run #" << k << std::endl;
+		experiment.run();
+	}
 	return 0;
 }

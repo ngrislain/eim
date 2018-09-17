@@ -103,6 +103,8 @@ void market::NormalValue::draw(Generator &generator) {
 			parameters_[feature_dim*i + j] = normal(generator);
 		}
 	}
+	// Add a constant
+	parameters_[feature_dim*0 + 0] = 1;
 }
 
 void market::SoftValue::draw(Generator &generator) {
@@ -112,7 +114,8 @@ void market::SoftValue::draw(Generator &generator) {
 			parameters_[feature_dim*i + j] = 0.1*normal(generator);
 		}
 	}
-	parameters_[0] = 2;
+	// Add a constant
+	parameters_[feature_dim*0 + 0] = 1;
 }
 
 double market::Modifier::operator()(const Supply &s, const Demand &d, const Value &v, double impact) const {
@@ -210,74 +213,104 @@ market::Experiment::Experiment() : omega(), long_term_omega(), supply_value(long
 	++long_term_omega;
 }
 
+void market::Experiment::reset() {
+	supply_searching.clear();
+	demand_searching.clear();
+	supply_candidates.clear();
+	demand_candidates.clear();
+	// Fill-in supply and demand searching lists
+	for (Supply &s : supply) {
+		supply_searching.insert(&s);
+	}
+	for (Demand &d : demand) {
+		demand_searching.insert(&d);
+	}
+}
+
+void market::Experiment::demand_propose() {
+	double max_value = 0;
+	Supply* supply_max = nullptr;
+	// Find the best remaining supply for each demand
+	for (Demand* d : demand_searching) {
+		max_value = 0;
+		supply_max = nullptr;
+		for (Supply* s : supply_searching) {
+			double value = treatment(*s,*d,demand_value,0.1);
+			if (value > max_value) {
+				max_value = value;
+				supply_max = s;
+			}
+		}
+		if (max_value>0) {
+			demand_candidates.insert(std::make_pair(d, SupplyValue(supply_max, max_value)));
+			supply_candidates.insert(std::make_pair(supply_max, DemandValue(d, treatment(*supply_max,*d,supply_value,0.1))));
+			match = true;
+		}
+	}
+}
+
+void market::Experiment::supply_dispose() {
+	// We match the preferred
+	double max_value = 0;
+	Demand* demand_max = nullptr;
+	Supply* current = nullptr;
+	for (std::pair<Supply*, DemandValue> sdv : supply_candidates) {
+		if (current != sdv.first) {
+			if (max_value>0) {
+				supply_candidates.erase(current);
+				demand_candidates.erase(demand_max);
+				supply_searching.erase(current);
+				demand_searching.erase(demand_max);
+				matched.insert(std::make_pair(current, demand_max));
+			}
+			current = sdv.first;
+			max_value = 0;
+			demand_max = nullptr;
+		}
+		if (sdv.second.value > max_value) {
+			max_value = sdv.second.value;
+			demand_max = sdv.second.demand;
+			match = true;
+		}
+	}
+	if (max_value>0) {
+		supply_candidates.erase(current);
+		demand_candidates.erase(demand_max);
+		supply_searching.erase(current);
+		demand_searching.erase(demand_max);
+		matched.insert(std::make_pair(current, demand_max));
+	}
+}
+
+void market::Experiment::print() {
+	std::cout << std::endl << "Market print" << std::endl;
+	std::cout << std::endl << "Supply " << std::endl;
+	for (Demand* d : demand_searching) {
+		std::cout << d->id() << std::endl;
+	}
+	std::cout << std::endl << "Demand " << std::endl;
+	for (Supply* s : supply_searching) {
+		std::cout << s->id() << std::endl;
+	}
+}
+
 market::Result market::Experiment::run() {
+	// Empty the maps for a new run
+	reset();
 	// Update omega
 	++omega;
 	// Declare result
 	Result result(0);
-	// Create maps for book-keeping;
-	std::multimap<Supply*, DemandValue> supply_candidates;
-	std::multimap<Demand*, SupplyValue> demand_candidates;
-	std::map<Supply*, Demand*> matched;
-	// Fill-in supply and demand
-	for (Supply &s : supply) {
-		supply_candidates.insert(std::make_pair(&s, DemandValue(nullptr, -1)));
+	// Iterate until no match is left
+	match = true;
+	for (int k=0; k<market_iterations && match; k++) {
+		//std::cout << demand_searching.size() << " passengers left at iteration: " << k << std::endl;
+		// Is there a match?
+		match = false;
+		demand_propose();
+		supply_dispose();
 	}
-	for (Demand &d : demand) {
-		demand_candidates.insert(std::make_pair(&d, SupplyValue(nullptr, -1)));
-	}
-	// Iterate until no-one is left
-	for (int k=0; k<1; k++) {
-		double max_value = 0;
-		Supply* supply_max = nullptr;
-		Demand* demand_max = nullptr;
-		Supply* current = nullptr;
-		// Find the best remaining supply for each demand
-		for (Demand &d : demand) {
-			max_value = 0;
-			supply_max = nullptr;
-			for (Supply &s : supply) {
-				double value = treatment(s,d,demand_value,0.1);
-				if (value > max_value) {
-					max_value = value;
-					supply_max = &s;
-				}
-			}
-			if (max_value>0) {
-				demand_candidates.erase(&d);
-				demand_candidates.insert(std::make_pair(&d, SupplyValue(supply_max, max_value)));
-				supply_candidates.insert(std::make_pair(supply_max, DemandValue(&d, treatment(*supply_max,d,supply_value,0))));
-			}
-		}
-		// We match the preferred
-		max_value = 0;
-		demand_max = nullptr;
-		for (std::pair<Supply*, DemandValue> kv : supply_candidates) {
-			if (current != kv.first) {
-				if (max_value>0) {
-					supply_candidates.erase(kv.first);
-					demand_candidates.erase(kv.second.demand);
-					matched.insert(std::make_pair(kv.first, kv.second.demand));
-				}
-				current = kv.first;
-				max_value = 0;
-				demand_max = nullptr;
-			}
-			if (kv.second.value > max_value) {
-				max_value = kv.second.value;
-				demand_max = kv.second.demand;
-			}
-		}
-
-		std::cout << std::endl << "Supply " << std::endl;
-		for (std::pair<Supply*, DemandValue> kv : supply_candidates) {
-			std::cout << kv.first->id() << ": " << ((kv.second.value>0)?kv.second.demand->id():0) << ", " << kv.second.value << std::endl;
-		}
-		std::cout << std::endl << "Demand " << std::endl;
-		for (std::pair<Demand*, SupplyValue> kv : demand_candidates) {
-			std::cout << kv.first->id() << ": " << ((kv.second.value>0)?kv.second.supply->id():0) << ", " << kv.second.value << std::endl;
-		}
-	}
+	print();
 	return result;
 }
 
