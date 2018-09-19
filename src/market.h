@@ -91,6 +91,7 @@ private:
 	double proba_;
 public:
 	TreatmentModifier(Omega &o, double proba=0.5) : Modifier(o), proba_(proba) {};
+	TreatmentModifier& proba(double p);
 	virtual void draw(Generator &generator) override;
 };
 
@@ -99,6 +100,7 @@ private:
 	double proba_;
 public:
 	SupplyTreatmentModifier(Omega &o, double proba=0.5) : Modifier(o), proba_(proba) {};
+	SupplyTreatmentModifier& proba(double p);
 	virtual void draw(Generator &generator) override;
 };
 
@@ -108,12 +110,14 @@ private:
 public:
 	MatchingModifier(Omega &o, double proba=0.9) : Modifier(o), proba_(proba) {};
 	double operator()(const Supply &s, const Demand &d, const Value &v) const;
+	MatchingModifier& proba(double p);
 	virtual void draw(Generator &generator) override;
 };
 
 struct Result : public json::Serializable {
-	double gmv;
-	Result(double gmv) : gmv(gmv) {}
+	int sample_size;
+	double treated_share;
+	double gmv_mean, gmv_min, gmv_low, gmv_med, gmv_high, gmv_max;
 	virtual std::ostream& json(std::ostream& os, int indent = 0) const override;
 };
 
@@ -149,11 +153,13 @@ public:
 	SoftValue supply_value;
 	NormalValue demand_value;
 	TreatmentModifier treatment;
+	double supply_impact = 0;
+	double demand_impact = 0.2;
 	Experiment();
-	Result run();
+	Result run(int sample_size, double treated_share);
 	void reset();
 	void demand_propose();
-	void supply_dispose();
+	double supply_dispose();
 	void print();
 };
 

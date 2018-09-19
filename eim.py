@@ -40,9 +40,19 @@ def modifier():
     plt.imshow(matching['parameters'])
     plt.show()
 
+def gmv():
+    with open('/tmp/eim/gmv.json') as f:
+        gmv = json.load(f)
+    print([g['treated_share'] for g in gmv])
+    plt.plot([g['treated_share'] for g in gmv], [g['gmv_med'] for g in gmv])
+    plt.plot([g['treated_share'] for g in gmv], [g['gmv_low'] for g in gmv])
+    plt.plot([g['treated_share'] for g in gmv], [g['gmv_high'] for g in gmv])
+    plt.show()
+
 #market()
-value()
-modifier()
+#value()
+#modifier()
+gmv()
 
 # with open('/tmp/output.json') as f:
 #     data = json.load(f)

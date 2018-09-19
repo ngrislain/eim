@@ -153,6 +153,11 @@ void market::TreatmentModifier::draw(Generator &generator) {
 	}
 }
 
+market::TreatmentModifier& market::TreatmentModifier::proba(double p) {
+	proba_ = p;
+	return *this;
+}
+
 void market::SupplyTreatmentModifier::draw(Generator &generator) {
 	std::bernoulli_distribution bernoulli(proba_);
 	for (int i=0; i<supply_split_dim; i++) {
@@ -161,6 +166,11 @@ void market::SupplyTreatmentModifier::draw(Generator &generator) {
 			parameters_[demand_split_dim*i + j] = treat;
 		}
 	}
+}
+
+market::SupplyTreatmentModifier& market::SupplyTreatmentModifier::proba(double p) {
+	proba_ = p;
+	return *this;
 }
 
 void market::MatchingModifier::draw(Generator &generator) {
@@ -182,9 +192,22 @@ double market::MatchingModifier::operator()(const Supply &s, const Demand &d, co
 	return result;
 }
 
+market::MatchingModifier& market::MatchingModifier::proba(double p) {
+	proba_ = p;
+	return *this;
+}
+
 std::ostream& market::Result::json(std::ostream& os, int indent) const {
 	json::Object result;
-	result.set("type", "Result").set("gmv", gmv);
+	result.set("type", "Result")
+		.set("sample_size", sample_size)
+		.set("treated_share", treated_share)
+		.set("gmv_mean", gmv_mean)
+		.set("gmv_min", gmv_min)
+		.set("gmv_low", gmv_low)
+		.set("gmv_med", gmv_med)
+		.set("gmv_high", gmv_high)
+		.set("gmv_max", gmv_max);
 	return result.json(os, indent);
 }
 
@@ -235,7 +258,7 @@ void market::Experiment::demand_propose() {
 		max_value = 0;
 		supply_max = nullptr;
 		for (Supply* s : supply_searching) {
-			double value = treatment(*s,*d,demand_value,0.1);
+			double value = treatment(*s,*d,demand_value,1);
 			if (value > max_value) {
 				max_value = value;
 				supply_max = s;
@@ -243,14 +266,15 @@ void market::Experiment::demand_propose() {
 		}
 		if (max_value>0) {
 			demand_candidates.insert(std::make_pair(d, SupplyValue(supply_max, max_value)));
-			supply_candidates.insert(std::make_pair(supply_max, DemandValue(d, treatment(*supply_max,*d,supply_value,0.1))));
+			supply_candidates.insert(std::make_pair(supply_max, DemandValue(d, treatment(*supply_max,*d,supply_value,0.0))));
 			match = true;
 		}
 	}
 }
 
-void market::Experiment::supply_dispose() {
+double market::Experiment::supply_dispose() {
 	// We match the preferred
+	double total_value = 0;
 	double max_value = 0;
 	Demand* demand_max = nullptr;
 	Supply* current = nullptr;
@@ -262,6 +286,7 @@ void market::Experiment::supply_dispose() {
 				supply_searching.erase(current);
 				demand_searching.erase(demand_max);
 				matched.insert(std::make_pair(current, demand_max));
+				total_value += max_value;
 			}
 			current = sdv.first;
 			max_value = 0;
@@ -279,7 +304,9 @@ void market::Experiment::supply_dispose() {
 		supply_searching.erase(current);
 		demand_searching.erase(demand_max);
 		matched.insert(std::make_pair(current, demand_max));
+		total_value += max_value;
 	}
+	return total_value;
 }
 
 void market::Experiment::print() {
@@ -294,23 +321,41 @@ void market::Experiment::print() {
 	}
 }
 
-market::Result market::Experiment::run() {
-	// Empty the maps for a new run
-	reset();
-	// Update omega
-	++omega;
+market::Result market::Experiment::run(int sample_size, double treated_share) {
+	treatment.proba(treated_share);
 	// Declare result
-	Result result(0);
-	// Iterate until no match is left
-	match = true;
-	for (int k=0; k<market_iterations && match; k++) {
-		//std::cout << demand_searching.size() << " passengers left at iteration: " << k << std::endl;
-		// Is there a match?
-		match = false;
-		demand_propose();
-		supply_dispose();
+	Result result;
+	result.sample_size = sample_size;
+	result.treated_share = treated_share;
+	std::vector<double> gmvs;
+	double gmvs_sum = 0;
+	for (int i=0; i<sample_size; i++) {
+		double gmv = 0;
+		// Empty the maps for a new run
+		reset();
+		// Update omega
+		++omega;
+		// Iterate until no match is left
+		match = true;
+		for (int k=0; k<market_iterations && match; k++) {
+			//std::cout << demand_searching.size() << " passengers left at iteration: " << k << std::endl;
+			// Is there a match?
+			match = false;
+			demand_propose();
+			gmv += supply_dispose();
+		}
+		//print();
+		gmvs.push_back(gmv);
+		gmvs_sum += gmv;
+		//std::cout << "Run " << i+1 << "/" << sample_size << std::endl;
 	}
-	print();
+	std::sort(gmvs.begin(), gmvs.end());
+	result.gmv_min = gmvs[0];
+	result.gmv_low = gmvs[gmvs.size()*1/4];
+	result.gmv_med = gmvs[gmvs.size()*1/2];
+	result.gmv_high = gmvs[gmvs.size()*3/4];
+	result.gmv_max = gmvs[gmvs.size()-1];
+	result.gmv_mean = gmvs_sum/gmvs.size();
 	return result;
 }
 
